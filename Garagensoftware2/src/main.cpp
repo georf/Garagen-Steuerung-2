@@ -588,6 +588,25 @@ void mqttSendAdebarGarageIpAddress(boolean full)
   }
 }
 
+void mqttSendAdebarGarageRestartButton(boolean full)
+{
+  if (!full)
+    return;
+
+  // see https://www.home-assistant.io/integrations/button.mqtt/
+  const char *discoveryConfig = "{"
+                                "\"name\":\"Garage Neustart\","
+                                "\"uniq_id\":\"adebar_garage_system_restart\","
+                                "\"cmd_t\":\"adebar/garage/system/set\","
+                                "\"payload_press\":\"RESTART\","
+                                "\"dev\":{"
+                                "\"identifiers\":[\"adebar_garage\"],"
+                                "\"name\":\"Garage\""
+                                "}"
+                                "}";
+  mqttPublish("homeassistant/button/adebar_garage_system_restart/config", discoveryConfig);
+}
+
 void mqttSendAdebarGarageDoor(uint8_t door, boolean full)
 {
   if (full)
@@ -657,6 +676,7 @@ void mqttSendStatus(boolean full)
   mqttSendAdebarGarageDoor(0, full);
   mqttSendAdebarGarageDoor(1, full);
   mqttSendAdebarGarageCover(full);
+  mqttSendAdebarGarageRestartButton(full);
 
   lastMqttStatusUpdate = millis();
 }
