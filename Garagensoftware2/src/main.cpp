@@ -350,22 +350,22 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     if (!strncmp((char *)payload, "closed", length) || !strncmp((char *)payload, "unknown", length))
     {
       gateModus = GATE_CLOSED;
-      // mcp_handheld.setOutputModus(LED_GATE, off);
+      mcp_handheld.setOutputModus(LED_GATE, off);
     }
     else if (!strncmp((char *)payload, "open", length))
     {
       gateModus = GATE_OPENED;
-      // mcp_handheld.setOutputModus(LED_GATE, on);
+      mcp_handheld.setOutputModus(LED_GATE, on);
     }
     else if (!strncmp((char *)payload, "stopped", length))
     {
       gateModus = GATE_STOPPED;
-      // mcp_handheld.setOutputModus(LED_GATE, off);
+      mcp_handheld.setOutputModus(LED_GATE, off);
     }
     else if (!strncmp((char *)payload, "opening", length) || !strncmp((char *)payload, "closing", length))
     {
       gateModus = GATE_RUNNING;
-      // mcp_handheld.setOutputModus(LED_GATE, fastBlink);
+      mcp_handheld.setOutputModus(LED_GATE, fastBlink);
     }
   }
 
@@ -684,6 +684,7 @@ bool connectMQTT(unsigned long now)
 
     mqttClient.subscribe("energymeter/power_curr/state"); // Zähler Leistung
     mqttClient.subscribe("adebar/garage/+/set");
+    mqttClient.subscribe("adebar/carport/gate/state");
     mqttClient.publish("adebar/garage/system/state", "connected");
     mqttSendStatus(true);
     return true;
@@ -932,17 +933,17 @@ void clickGate()
   if (gateModus == GATE_CLOSED || gateModus == GATE_STOPPED)
   {
     mqttPublish("adebar/carport/gate/set", "OPEN");
-    // mcp_handheld.setOutputModus(LED_GATE, fastBlink);
+    mcp_handheld.setOutputModus(LED_GATE, fastBlink);
   }
   else if (gateModus == GATE_OPENED)
   {
-    mqttPublish("adebar/carport/gate/command", "CLOSE");
-    // mcp_handheld.setOutputModus(LED_GATE, fastBlink);
+    mqttPublish("adebar/carport/gate/set", "CLOSE");
+    mcp_handheld.setOutputModus(LED_GATE, fastBlink);
   }
   else if (gateModus == GATE_RUNNING)
   {
-    mqttPublish("adebar/carport/gate/command", "STOP");
-    // mcp_handheld.setOutputModus(LED_GATE, off);
+    mqttPublish("adebar/carport/gate/set", "STOP");
+    mcp_handheld.setOutputModus(LED_GATE, off);
   }
 }
 
