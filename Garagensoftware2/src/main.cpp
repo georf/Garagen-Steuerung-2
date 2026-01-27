@@ -292,6 +292,16 @@ unsigned long lastClickLid = 0;
 // #define MOTOR_RUN_MAX_TIME 30000 // 30 Sekunden
 #define MOTOR_RUN_MAX_TIME 300000 // 300 Sekunden
 
+void triggerLight()
+{
+  unsigned long now = millis();
+  relays[RELAY_6_LIGHT_FRONT].triggerTimeout(now);
+  if (relays[RELAY_5_LIGHT_MIDDLE].read())
+    relays[RELAY_5_LIGHT_MIDDLE].triggerTimeout(now);
+  if (relays[RELAY_7_LIGHT_BACK].read())
+    relays[RELAY_7_LIGHT_BACK].triggerTimeout(now);
+}
+
 void clickLid()
 {
   if (lastClickLid + LidClickDebounceTime > millis())
@@ -301,6 +311,7 @@ void clickLid()
   }
 
   addLog("Lid toggle");
+  triggerLight();
 
   lastClickLid = millis();
   if (state == STOPPING || state == IDLE)
@@ -364,13 +375,21 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
       state = STOPPING;
     else if (!strncmp((char *)payload, "CLOSE", length))
     {
-      if (mcp_backend.digitalRead(SW_LID_END_DOWN) == HIGH) // Noch nicht zu
+      if (mcp_backend.digitalRead(SW_LID_END_DOWN) == HIGH)
+      {
+        // Noch nicht zu
         state = CLOSING_POWER_ON;
+        triggerLight();
+      }
     }
     else if (!strncmp((char *)payload, "OPEN", length))
     {
-      if (mcp_backend.digitalRead(SW_LID_END_UP) == HIGH) // Noch nicht auf
+      if (mcp_backend.digitalRead(SW_LID_END_UP) == HIGH)
+      {
+        // Noch nicht auf
         state = OPENING_POWER_ON;
+        triggerLight();
+      }
     }
     else if (!strncmp((char *)payload, "TOGGLE", length))
       clickLid();
@@ -907,20 +926,9 @@ void handleLid(unsigned long now)
   }
 }
 
-void triggerLight()
-{
-  unsigned long now = millis();
-  relays[RELAY_6_LIGHT_FRONT].triggerTimeout(now);
-  if (relays[RELAY_5_LIGHT_MIDDLE].read())
-    relays[RELAY_5_LIGHT_MIDDLE].triggerTimeout(now);
-  if (relays[RELAY_7_LIGHT_BACK].read())
-    relays[RELAY_7_LIGHT_BACK].triggerTimeout(now);
-}
-
 void clickGate()
 {
   addLog("Gate toggle");
-  triggerLight();
   if (gateModus == GATE_CLOSED || gateModus == GATE_STOPPED)
   {
     mqttPublish("adebar/carport/gate/set", "OPEN");
