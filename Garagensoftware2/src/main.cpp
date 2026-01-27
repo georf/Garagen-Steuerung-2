@@ -106,7 +106,7 @@ Relay relays[8] = {
     Relay(mcp_backend, RELAY_0_HEATING, (char *)"Heizung", 100, 5),
     Relay(mcp_backend, RELAY_1_CONTACTOR_3_PHASE, (char *)"Dreiphasen-Kontaktor", 0, 0),
     Relay(mcp_backend, RELAY_2_CONTACTOR_1_PHASE, (char *)"Einphasen-Kontaktor", 0, 0),
-    Relay(mcp_backend, RELAY_3_LID_MOTOR, (char *)"Tor-Motor", 20, 0),
+    Relay(mcp_backend, RELAY_3_LID_MOTOR, (char *)"Tor-Motor", 20, 5),
     Relay(mcp_backend, RELAY_4_UNUSED, (char *)"Unbenutzt", 0, 1),
     Relay(mcp_backend, RELAY_5_LIGHT_MIDDLE, (char *)"Licht Mitte", 8, 3),
     Relay(mcp_backend, RELAY_6_LIGHT_FRONT, (char *)"Licht vorne", 8, 5),
@@ -181,6 +181,8 @@ ChargeConfig chargeConfigs[] = {
 
 // Heizungsparameter
 #define HEATING_MIN_VALUE 5
+// Minimale Batteriezellspannung in Volt
+#define BATTERY_MIN_VALUE 2.78
 
 // ----------------------------------------------------------
 // Motor + BTS7960
@@ -393,6 +395,20 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     {
       addLog("Heating ON");
       relays[RELAY_0_HEATING].triggerTimeout(millis());
+    }
+
+    return;
+  }
+
+  if (!strcmp(topic, "deye12k/cell_voltage_lowest/state"))
+  {
+    char *endptr;
+    float value = strtof((char *)payload, &endptr);
+
+    if (value < BATTERY_MIN_VALUE)
+    {
+      addLog("Loading ON");
+      relays[RELAY_3_LID_MOTOR].triggerTimeout(millis());
     }
 
     return;
@@ -641,10 +657,11 @@ bool connectMQTT(unsigned long now)
     addLog("MQTT connected");
     mqttClient.subscribe("adebar/time"); // Uhrzeit
 
-    mqttClient.subscribe("deye12k/battery_power/state");    // Batteriewechselrichter Leistung
-    mqttClient.subscribe("deye12k/battery_soc/state");      // Batteriewechselrichter SOC
-    mqttClient.subscribe("deye12k/cell_temp_lowest/state"); // Batteriewechselrichter Temperatur
-    mqttClient.subscribe("outdoor/outdoor_temp/state");     // Temperatur
+    mqttClient.subscribe("deye12k/battery_power/state");       // Batteriewechselrichter Leistung
+    mqttClient.subscribe("deye12k/battery_soc/state");         // Batteriewechselrichter SOC
+    mqttClient.subscribe("deye12k/cell_temp_lowest/state");    // Batteriewechselrichter Temperatur
+    mqttClient.subscribe("deye12k/cell_voltage_lowest/state"); // Batteriewechselrichter Zellspannung
+    mqttClient.subscribe("outdoor/outdoor_temp/state");        // Temperatur
 
     mqttClient.subscribe("energymeter/power_curr/state"); // Zähler Leistung
     mqttClient.subscribe("adebar/garage/+/set");
