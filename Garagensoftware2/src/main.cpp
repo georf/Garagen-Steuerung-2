@@ -193,7 +193,7 @@ ChargeConfig chargeConfigs[] = {
 
 // Motor-Parameter
 #define MOTOR_POWER 50 // Watt
-#define MOTOR_MAX_PWM 1023
+#define MOTOR_MAX_PWM 255
 #define MOTOR_SOFTSTART_TIME 1500 // ms
 #define MOTOR_SOFTSTOP_TIME 100   // ms
 #define MOTOR_MAX_CURRENT 450     // ADC value from A0
