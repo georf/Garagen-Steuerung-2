@@ -183,9 +183,9 @@ ChargeConfig chargeConfigs[] = {
 //  ----------------------------------------------------------
 
 // Heizungsparameter
-#define HEATING_MIN_VALUE 5
+#define HEATING_MIN_VALUE 3
 // Minimale Batteriezellspannung in Volt
-#define BATTERY_MIN_VALUE 2.78
+#define BATTERY_MIN_VALUE 2.79
 
 // ----------------------------------------------------------
 // Motor + BTS7960
@@ -199,7 +199,7 @@ ChargeConfig chargeConfigs[] = {
 #define MOTOR_MAX_PWM 255
 #define MOTOR_SOFTSTART_TIME 1500 // ms
 #define MOTOR_SOFTSTOP_TIME 100   // ms
-#define MOTOR_MAX_CURRENT 450     // ADC value from A0
+#define MOTOR_MAX_CURRENT 470     // ADC value from A0
 
 // Neue globale Variablen für ADC-Sampling
 const unsigned long ANALOG_SAMPLE_INTERVAL_MS = 10; // minimaler Abstand zwischen Reads
