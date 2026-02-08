@@ -1047,7 +1047,7 @@ void updateCharging(unsigned long now, uint8_t configIndex)
   case ChargeState::CHARGING_ACTIVE:
     // Laden darf weiterlaufen solange *irgendwie* geladen wird
     int tolerance = TOLERANCE_FACTOR * batterySocNow / 2; // je voller der Akku, desto mehr Toleranz
-    if ((batteryPowerNow > tolerance && netPowerNow > 0) || (batteryPowerNow > 0 && netPowerNow > tolerance))
+    if ((batteryPowerNow > tolerance && netPowerNow > 0) || (batteryPowerNow >= 0 && netPowerNow > tolerance))
     {
       relays[chargeConfigs[configIndex].relayPin].set(false, now);
       chargeConfigs[configIndex].chargeState = ChargeState::IDLE;
