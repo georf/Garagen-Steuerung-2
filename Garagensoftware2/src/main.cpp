@@ -141,8 +141,11 @@ char logBuffer[LOG_LINES][LOG_TEXT_LEN];
 uint16_t logHead = 0;  // zeigt auf NÄCHSTE freie Stelle
 uint16_t logCount = 0; // wie viele Logs existieren
 
-void addLog(const char *text)
+void addLog(const char *text, bool mqtt = true)
 {
+
+  if (mqtt)
+    mqttDebug(text);
 
   snprintf(logBuffer[logHead], LOG_TEXT_LEN, "%s %s", timeNow, text);
 
@@ -412,7 +415,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
     if (value < HEATING_MIN_VALUE)
     {
-      addLog("Heating ON");
+      addLog("Heating ON", false);
       relays[RELAY_0_HEATING].triggerTimeout(millis());
     }
 
@@ -426,7 +429,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
     if (value < BATTERY_MIN_VALUE)
     {
-      addLog("Loading ON");
+      addLog("Loading ON", false);
       relays[RELAY_3_LID_MOTOR].triggerTimeout(millis());
     }
 
@@ -693,7 +696,7 @@ bool connectMQTT(unsigned long now)
 
   if (mqttClient.connect("garage2", mqttUser, mqttPassword))
   {
-    addLog("MQTT connected");
+    addLog("MQTT connected", false);
     mqttClient.subscribe("adebar/time"); // Uhrzeit
 
     mqttClient.subscribe("deye12k/battery_power/state");       // Batteriewechselrichter Leistung
@@ -711,7 +714,7 @@ bool connectMQTT(unsigned long now)
   }
   else
   {
-    addLog("MQTT failed");
+    addLog("MQTT failed", false);
     Serial.print("Fehler beim MQTT-Verbindungsversuch: ");
     Serial.println(mqttClient.state());
     return false;
@@ -749,6 +752,7 @@ void handleLid(unsigned long now)
   if ((state != IDLE && state != STOPPING) && (now - stateStart > MOTOR_RUN_MAX_TIME) && now - stateStart > 0 && stateStart > 0)
   {
     addLog("Lid timeout");
+
     state = STOPPING;
     lidRealState = LID_REAL_STOPPED;
     return;
@@ -813,7 +817,10 @@ void handleLid(unsigned long now)
       // Serial.print("Motor current to high: ");
       // Serial.print(current);
       // Serial.println("  . Stopping");
-      addLog("Lid overcurrent");
+      char buffer[64];
+      snprintf(buffer, 64, "Motor current too high: %d", current);
+      addLog(buffer);
+
       state = STOPPING;
       lidRealState = LID_REAL_STOPPED;
     }
@@ -894,7 +901,10 @@ void handleLid(unsigned long now)
       // Serial.print("Motor current to high: ");
       // Serial.print(current);
       // Serial.println("  . Stopping");
-      addLog("Lid overcurrent");
+      char buffer[64];
+      snprintf(buffer, 64, "Motor current too high: %d", current);
+      addLog(buffer);
+
       state = STOPPING;
       lidRealState = LID_REAL_STOPPED;
       return;
@@ -969,7 +979,7 @@ void clickGate()
 
 void clickBell()
 {
-  addLog("Bell btn pressed");
+  addLog("Bell btn pressed", false);
   mqttPublish("adebar/klingelbox/bell_button/set", "SET");
 }
 
@@ -1267,15 +1277,6 @@ void updateDisplayRight(unsigned long now)
 
 void btnLightClicked()
 {
-  addLog(mcp_backend.digitalRead(8 + RELAY_0_HEATING) ? "HEATING ON" : "HEATING OFF");
-  addLog(mcp_backend.digitalRead(8 + RELAY_1_CONTACTOR_3_PHASE) ? "CONTACTOR 3 PHASE ON" : "CONTACTOR 3 PHASE OFF");
-  addLog(mcp_backend.digitalRead(8 + RELAY_2_CONTACTOR_1_PHASE) ? "CONTACTOR 1 PHASE ON" : "CONTACTOR 1 PHASE OFF");
-  addLog(mcp_backend.digitalRead(8 + RELAY_3_LID_MOTOR) ? "LID MOTOR ON" : "LID MOTOR OFF");
-  addLog(mcp_backend.digitalRead(8 + RELAY_4_UNUSED) ? "UNUSED ON" : "UNUSED OFF");
-  addLog(mcp_backend.digitalRead(8 + RELAY_5_LIGHT_MIDDLE) ? "LIGHT MIDDLE ON" : "LIGHT MIDDLE OFF");
-  addLog(mcp_backend.digitalRead(8 + RELAY_6_LIGHT_FRONT) ? "LIGHT FRONT ON" : "LIGHT FRONT OFF");
-  addLog(mcp_backend.digitalRead(8 + RELAY_7_LIGHT_BACK) ? "LIGHT BACK ON" : "LIGHT BACK OFF");
-
   addLog("BTN_LIGHT clicked");
   unsigned long now = millis();
 
