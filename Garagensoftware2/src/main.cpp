@@ -938,15 +938,19 @@ void handleLid(unsigned long now)
     analogWrite(MOTOR_PWM_DOWN, 0);
     relays[RELAY_3_LID_MOTOR].set(false, now);
 
-    mqttSendStatus(false);
-
     state = IDLE;
 
     if (lidRealState != LID_REAL_OPEN && lidRealState != LID_REAL_CLOSED)
       lidRealState = LID_REAL_STOPPED;
 
+    mqttSendStatus(false);
     resetAveraegeMotorCurrent();
-    mcp_handheld.setOutputModus(LED_LID, off);
+
+    if (lidRealState == LID_REAL_CLOSED)
+      mcp_handheld.setOutputModus(LED_LID, off);
+    else if (lidRealState == LID_REAL_OPEN)
+      mcp_handheld.setOutputModus(LED_LID, on);
+
     return;
   }
 
