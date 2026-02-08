@@ -1520,7 +1520,20 @@ void loop()
       mqttClient.loop();
 
       if ((lastMqttStatusUpdate + MQTT_STATUS_INTERVAL) < now)
+      {
+        // Alle 2 Tage ein Reset
+        // nur um 2 Uhr, 3 Uhr, 4 Uhr oder 5 Uhr
+        // nur wenn bestimmte Relais ausgeschaltet sind
+        if (now > 2 * 24 * 60 * 60 * 1000 && lidRealState == LID_REAL_CLOSED &&
+            (strcmp(timeNow, "02:00") == 0 || strcmp(timeNow, "03:00") == 0 ||  strcmp(timeNow, "04:00") == 0 || strcmp(timeNow, "05:00") == 0)
+            && !relays[RELAY_1_CONTACTOR_3_PHASE].read()
+            && !relays[RELAY_2_CONTACTOR_1_PHASE].read()
+            && !relays[RELAY_6_LIGHT_FRONT].read()
+        )
+          ESP.restart();
+
         mqttSendStatus(true);
+      }
     }
   }
 
