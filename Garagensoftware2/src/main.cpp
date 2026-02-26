@@ -1002,13 +1002,13 @@ void setupOTA()
 void updateCharging(unsigned long now, uint8_t configIndex)
 {
   char buffer[64];
+  int powerNow = batteryPowerNow + netPowerNow; // Gesamtleistung, die gerade übrig ist
 
   switch (chargeConfigs[configIndex].chargeState)
   {
 
   case ChargeState::IDLE:
-    if ((batterySocNow > chargeConfigs[configIndex].socThreshold && batteryPowerNow < chargeConfigs[configIndex].powerThreshold) ||
-        netPowerNow < chargeConfigs[configIndex].powerThreshold)
+    if ((batterySocNow > chargeConfigs[configIndex].socThreshold && powerNow < chargeConfigs[configIndex].powerThreshold))
     {
       chargeConfigs[configIndex].conditionTimer.start(now);
       chargeConfigs[configIndex].chargeState = ChargeState::PRECONDITION;
@@ -1018,7 +1018,7 @@ void updateCharging(unsigned long now, uint8_t configIndex)
     break;
 
   case ChargeState::PRECONDITION:
-    if (batteryPowerNow >= chargeConfigs[configIndex].powerThreshold && netPowerNow >= chargeConfigs[configIndex].powerThreshold)
+    if (powerNow >= chargeConfigs[configIndex].powerThreshold)
     {
       chargeConfigs[configIndex].chargeState = ChargeState::IDLE;
       break;
