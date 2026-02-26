@@ -946,10 +946,7 @@ void handleLid(unsigned long now)
     mqttSendStatus(false);
     resetAveraegeMotorCurrent();
 
-    if (lidRealState == LID_REAL_CLOSED)
-      mcp_handheld.setOutputModus(LED_LID, off);
-    else if (lidRealState == LID_REAL_OPEN)
-      mcp_handheld.setOutputModus(LED_LID, on);
+    mcp_handheld.setOutputModus(LED_LID, off);
 
     return;
   }
