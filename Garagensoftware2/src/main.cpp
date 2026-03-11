@@ -767,6 +767,7 @@ void handleLid(unsigned long now)
     lastDirection = UP;
     mcp_handheld.setOutputModus(LED_LID, fastBlink);
     relays[RELAY_3_LID_MOTOR].set(true, now);
+    mqttSendAdebarGarageCover(false);
     if (mcp_backend.digitalRead(SW_24VOLT)) // 24 Volt liegen an
     {
       state = OPENING_SOFTSTART;
@@ -851,6 +852,7 @@ void handleLid(unsigned long now)
     lastDirection = DOWN;
     mcp_handheld.setOutputModus(LED_LID, fastBlink);
     relays[RELAY_3_LID_MOTOR].set(true, now);
+    mqttSendAdebarGarageCover(false);
     if (mcp_backend.digitalRead(SW_24VOLT)) // 24 Volt liegen an
     {
       state = CLOSING_SOFTSTART;
