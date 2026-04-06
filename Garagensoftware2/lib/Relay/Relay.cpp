@@ -1,16 +1,83 @@
 #include "Relay.h"
+#include "build_config.h"
 // Forward declaration of global relays array (defined in main.cpp)
 extern Relay relays[];
 
 // Special relays that must never be on at the same time and require a 30s both-off delay
-static const unsigned long BOTH_OFF_DELAY = 30UL * 1000UL; // 30 seconds
-static const int SPECIAL_RELAY_A = 1;                      // Dreiphasen-Kontaktor
-static const int SPECIAL_RELAY_B = 2;                      // Einphasen-Kontaktor
+#define BOTH_OFF_DELAY 30UL * 1000UL // 30 seconds
+#define SPECIAL_RELAY_3PHASE 1       // Dreiphasen-Kontaktor
+#define SPECIAL_RELAY_1PHASE 2       // Einphasen-Kontaktor
 
-// Pending enable request when swap requires both relays to be off for BOTH_OFF_DELAY
-static int pendingRelayIndex = -1;
-static bool pendingRelayState = false;
-static unsigned long pendingExecuteAt = 0;
+static bool phase1wanted = false;
+static bool phase3wanted = false;
+static bool todo = false;
+
+void loopSpecialRelays(unsigned long now)
+{
+  Relay &relay3 = relays[SPECIAL_RELAY_3PHASE];
+  Relay &relay1 = relays[SPECIAL_RELAY_1PHASE];
+
+  if (phase3wanted && !relay3.read())
+  {
+    // Schritt 1: Beide Relais aus, damit Umschalten möglich ist
+    if (relay1.read()) {
+      relay1.set(false, now, true);
+      return;
+    }
+
+    // Schritt 2: Beide Relais müssen mindestens 30 Sekunden aus sein, bevor wir das andere einschalten können
+    if (now - relay3.getLastStopTime() >= BOTH_OFF_DELAY && now - relay1.getLastStopTime() >= BOTH_OFF_DELAY)
+    {
+      relay3.set(true, now, true);
+      todo = false;
+      return;
+    }   
+  }
+  else if (phase1wanted && !relay1.read() && !relay3.read())
+  {
+    // Schritt 1: Beide Relais müssen mindestens 30 Sekunden aus sein, bevor wir das andere einschalten können
+    if (now - relay3.getLastStopTime() >= BOTH_OFF_DELAY && now - relay1.getLastStopTime() >= BOTH_OFF_DELAY)
+    {
+      relay1.set(true, now, true);
+      todo = false;
+      return;
+    }
+  }
+}
+
+void requestSpecialRelay(uint8_t index, bool state, unsigned long now)
+{
+  Relay &relay3 = relays[SPECIAL_RELAY_3PHASE];
+  Relay &relay1 = relays[SPECIAL_RELAY_1PHASE];
+
+  if (index == SPECIAL_RELAY_1PHASE)
+  {
+    phase1wanted = state;
+    if (state && !relay1.read())
+    {
+      todo = true;
+    }
+
+    if (!state)
+    {
+      relay1.set(false, now, true);
+    }
+  }
+  else if (index == SPECIAL_RELAY_3PHASE)
+  {
+    phase3wanted = state;
+    if (state && !relay3.read())
+    {
+      todo = true;
+    }
+    else if (!state)
+    {
+      relay3.set(false, now, true);
+      if (phase1wanted)
+        todo = true;
+    }
+  }
+}
 
 Relay::Relay(MCP23017Controller &mcp, uint8_t index, char *name, uint16_t watt, uint8_t timeoutMinutes)
 {
@@ -23,38 +90,12 @@ Relay::Relay(MCP23017Controller &mcp, uint8_t index, char *name, uint16_t watt, 
   _timeoutSeconds = timeoutMinutes * 60;
 }
 
-void Relay::set(bool state, unsigned long now)
+void Relay::set(bool state, unsigned long now, bool intern)
 {
-  // If this is one of the special contactor relays, enforce mutual exclusion
-  if ((_index == SPECIAL_RELAY_A || _index == SPECIAL_RELAY_B) && state)
+  if (!intern && (_index == SPECIAL_RELAY_1PHASE || _index == SPECIAL_RELAY_3PHASE))
   {
-    int other = (_index == SPECIAL_RELAY_A) ? SPECIAL_RELAY_B : SPECIAL_RELAY_A;
-
-    // If the other special relay is currently ON, switch it OFF and schedule enabling this one
-    if (relays[other].read())
-    {
-      // Turn other off now
-      relays[other].set(false, now);
-
-      // Schedule enabling of this relay after BOTH_OFF_DELAY
-      pendingRelayIndex = _index;
-      pendingRelayState = true;
-      pendingExecuteAt = now + BOTH_OFF_DELAY;
-      mqttDebug("Delaying special relay enable until both relays are off for 30s");
-      return;
-    }
-
-    // If the other relay was turned off recently, ensure both have been off for BOTH_OFF_DELAY
-    unsigned long otherLastStop = relays[other].getLastStopTime();
-    if (otherLastStop != 0 && (now - otherLastStop) < BOTH_OFF_DELAY && !read())
-    {
-      // Schedule enabling at the time the 30s off period is finished
-      pendingRelayIndex = _index;
-      pendingRelayState = true;
-      pendingExecuteAt = otherLastStop + BOTH_OFF_DELAY;
-      mqttDebug("Delaying special relay enable to satisfy 30s both-off requirement");
-      return;
-    }
+    requestSpecialRelay(_index, state, now);
+    return;
   }
 
   if (state)
@@ -66,21 +107,15 @@ void Relay::set(bool state, unsigned long now)
     _lastStartTime = now;
     _timeout = 0;
 
-    if (_watt != 0) {
+    if (_watt != 0)
+    {
       char bufferTopic[64];
-      snprintf(bufferTopic, sizeof(bufferTopic), "adebar/garage/relay%d/energy", _index);
+      snprintf(bufferTopic, sizeof(bufferTopic), ADEBAR_TOPIC("garage/relay%d/energy"), _index);
       mqttPublish(bufferTopic, "0");
     }
   }
   else
   {
-    // If there was a pending enable for this relay, cancel it when the relay is explicitly turned off
-    if (pendingRelayIndex == _index)
-    {
-      pendingRelayIndex = -1;
-      pendingRelayState = false;
-      pendingExecuteAt = 0;
-    }
 
     if (!read())
       return; // Bereits aus
@@ -98,7 +133,7 @@ void Relay::set(bool state, unsigned long now)
       char bufferSmall[64];
       char bufferTopic[64];
       snprintf(bufferSmall, sizeof(bufferSmall), "%f", energy);
-      snprintf(bufferTopic, sizeof(bufferTopic), "adebar/garage/relay%d/energy", _index);
+      snprintf(bufferTopic, sizeof(bufferTopic), ADEBAR_TOPIC("garage/relay%d/energy"), _index);
       mqttPublish(bufferTopic, bufferSmall);
     }
     _lastStartTime = 0;
@@ -128,28 +163,17 @@ void Relay::triggerTimeout(unsigned long now)
 
 void Relay::loop(unsigned long now)
 {
-  // Handle normal timeout
-  if (_timeout != 0 && now >= _timeout)
+  if(todo && (_index == SPECIAL_RELAY_1PHASE || _index == SPECIAL_RELAY_3PHASE))
+  {
+    loopSpecialRelays(now);
+  }
+
+  // Handle normal timeout (wrap-safe comparison)
+  if (_timeout != 0 && (long)(now - _timeout) >= 0)
   {
     set(false, now);
     mqttDebug("Relay timeout triggered");
     _timeout = 0;
-  }
-
-  // If there is a pending special-relay enable and its time has come, execute it
-  if (pendingRelayIndex != -1 && now >= pendingExecuteAt)
-  {
-    int idx = pendingRelayIndex;
-    bool state = pendingRelayState;
-
-    // Clear pending before executing to avoid re-entrance problems
-    pendingRelayIndex = -1;
-    pendingRelayState = false;
-    pendingExecuteAt = 0;
-
-    // Execute the requested state
-    relays[idx].set(state, now);
-    mqttDebug("Executed pending special-relay enable after 30s off");
   }
 }
 
@@ -181,21 +205,21 @@ void Relay::mqttPublishState(bool full)
     snprintf(bufferSmall, sizeof(bufferSmall), "Garagenschalter %d %s", _index, _name);
     discoveryConfig["name"] = bufferSmall;
 
-    snprintf(bufferSmall, sizeof(bufferSmall), "adebar/garage/relay%d/state", _index);
+    snprintf(bufferSmall, sizeof(bufferSmall), ADEBAR_TOPIC("garage/relay%d/state"), _index);
     discoveryConfig["stat_t"] = bufferSmall;
 
-    snprintf(bufferSmall, sizeof(bufferSmall), "adebar/garage/relay%d/set", _index);
+    snprintf(bufferSmall, sizeof(bufferSmall), ADEBAR_TOPIC("garage/relay%d/set"), _index);
     discoveryConfig["cmd_t"] = bufferSmall;
 
-    snprintf(bufferSmall, sizeof(bufferSmall), "adebar_garage_relay%d", _index);
+    snprintf(bufferSmall, sizeof(bufferSmall), ADEBAR_ROOT "_garage_relay%d", _index);
     discoveryConfig["uniq_id"] = bufferSmall;
 
     JsonObject device = discoveryConfig["dev"].to<JsonObject>();
-    device["identifiers"][0] = "adebar_garage";
+    device["identifiers"][0] = ADEBAR_ROOT "_garage";
     device["name"] = "Garage";
 
     serializeJson(discoveryConfig, bufferBig);
-    snprintf(bufferSmall, sizeof(bufferSmall), "homeassistant/switch/adebar_garage_relay%d/config", _index);
+    snprintf(bufferSmall, sizeof(bufferSmall), "homeassistant/switch/" ADEBAR_ROOT "_garage_relay%d/config", _index);
     mqttPublish(bufferSmall, bufferBig);
 
     if (_watt != 0)
@@ -209,22 +233,22 @@ void Relay::mqttPublishState(bool full)
       discoveryConfig["dev_cla"] = "energy";
       discoveryConfig["stat_cla"] = "total_increasing";
 
-      snprintf(bufferSmall, sizeof(bufferSmall), "adebar/garage/relay%d/energy", _index);
+      snprintf(bufferSmall, sizeof(bufferSmall), ADEBAR_TOPIC("garage/relay%d/energy"), _index);
       discoveryConfig["stat_t"] = bufferSmall;
 
-      snprintf(bufferSmall, sizeof(bufferSmall), "adebar_garage_relay%d_energy", _index);
+      snprintf(bufferSmall, sizeof(bufferSmall), ADEBAR_ROOT "_garage_relay%d_energy", _index);
       discoveryConfig["uniq_id"] = bufferSmall;
 
       JsonObject device = discoveryConfig["dev"].to<JsonObject>();
-      device["identifiers"][0] = "adebar_garage";
+      device["identifiers"][0] = ADEBAR_ROOT "_garage";
       device["name"] = "Garage";
 
       serializeJson(discoveryConfig, bufferBig);
-      snprintf(bufferSmall, sizeof(bufferSmall), "homeassistant/sensor/adebar_garage_relay%d_energy/config", _index);
+      snprintf(bufferSmall, sizeof(bufferSmall), "homeassistant/sensor/" ADEBAR_ROOT "_garage_relay%d_energy/config", _index);
       mqttPublish(bufferSmall, bufferBig);
     }
   }
 
-  snprintf(bufferSmall, sizeof(bufferSmall), "adebar/garage/relay%d/state", _index);
+  snprintf(bufferSmall, sizeof(bufferSmall), ADEBAR_TOPIC("garage/relay%d/state"), _index);
   mqttPublish(bufferSmall, read() ? "ON" : "OFF");
 }

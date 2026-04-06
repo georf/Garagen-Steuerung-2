@@ -19,7 +19,7 @@ class MCP23017Controller
 {
 public:
   MCP23017Controller() {}
-  void begin(uint8_t addr);
+  void begin(uint8_t addr, void (*resetCallback)(uint8_t addr));
   void loop(unsigned long now);
 
   // Set pin mode. Optional: initialState (-1 = ignore) sets the initial input state
@@ -33,12 +33,13 @@ public:
   // configureClick: like setPinMode+setCallbackClick. Optional initialState as above.
   void configureClick(uint8_t pin, uint8_t mode, void (*callback)(), int8_t initialState = -1);
   void setOutputModus(uint8_t pin, OutputModus modus);
+  void resetAndRestoreRegisters(bool force = false);
 
 private:
   uint8_t _addr;
   uint8_t _gpioA, _gpioB;
   uint8_t _olatA, _olatB;
-
+  void (*_resetCallback)(uint8_t addr);
 
   struct Pin
   {
@@ -48,11 +49,17 @@ private:
     bool debouncedState;
     bool writeState;
     bool pendingWrite;
+    bool pullupEnabled;
     unsigned long lastDebounce;
     void (*onClick)();
     void (*onChange)();
     OutputModus outputModus = disabled;
   } _pins[16];
+
+  // I2C error handling
+  int _i2cErrorCount;
+  unsigned long _lastReinitAttempt;
+
 
   void readRegisters(unsigned long now);
   void writeRegisters();

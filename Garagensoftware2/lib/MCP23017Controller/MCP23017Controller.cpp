@@ -1,10 +1,17 @@
 #include "MCP23017Controller.h"
 
-void MCP23017Controller::begin(uint8_t addr)
+// I2C error thresholds
+#define I2C_ERROR_THRESHOLD 8
+#define I2C_REINIT_MIN_INTERVAL_MS (60UL * 1000UL) // 60s
+
+void MCP23017Controller::begin(uint8_t addr, void (*resetCallback)(uint8_t addr))
 {
   _addr = addr;
   _gpioA = _gpioB = 0;
   _olatA = _olatB = 0;
+  _i2cErrorCount = 0;
+  _lastReinitAttempt = 0;
+  _resetCallback = resetCallback; // Store the reset callback
 
   // Pins initialisieren (vermeidet undefiniertes Verhalten)
   for (int i = 0; i < 16; i++)
@@ -15,6 +22,7 @@ void MCP23017Controller::begin(uint8_t addr)
     _pins[i].debouncedState = HIGH;
     _pins[i].writeState = LOW;
     _pins[i].pendingWrite = false;
+    _pins[i].pullupEnabled = false;
     _pins[i].lastDebounce = 0;
     _pins[i].onClick = NULL;
     _pins[i].onChange = NULL;
@@ -52,6 +60,7 @@ void MCP23017Controller::setPinMode(uint8_t pin, uint8_t mode, int8_t initialSta
   {
     addr = addr + 0x0C; // A => 0x0C ; B => 0x0D
     bool pullup = mode == INPUT_PULLUP;
+    _pins[origPin].pullupEnabled = pullup;
     iodir = readRegister(addr);
     iodir = iodir | (pullup << pinIndex);
     writeRegister(addr, iodir);
@@ -66,6 +75,11 @@ void MCP23017Controller::setPinMode(uint8_t pin, uint8_t mode, int8_t initialSta
       // Start debounce window from now to avoid immediate callbacks
       _pins[origPin].lastDebounce = millis();
     }
+  }
+  else
+  {
+    // Output -> no pullup
+    _pins[origPin].pullupEnabled = false;
   }
 }
 
@@ -139,8 +153,53 @@ void MCP23017Controller::handleOutputModus(uint8_t pin, unsigned long now)
 
 void MCP23017Controller::readRegisters(unsigned long now)
 {
-  _gpioA = readRegister(0x12);
-  _gpioB = readRegister(0x13);
+  // Read both GPIO registers in a single I2C transaction to get an atomic snapshot
+  // and reduce bus traffic/blocking caused by separate reads.
+  unsigned long t0 = millis();
+  bool readOk = false;
+  const int attempts = 2;
+  for (int a = 0; a < attempts; a++)
+  {
+    Wire.beginTransmission(_addr);
+    Wire.write((uint8_t)0x12);
+    uint8_t endRes = Wire.endTransmission();
+    if (endRes != 0)
+    {
+      _i2cErrorCount++;
+      delay(3);
+      continue;
+    }
+
+    Wire.requestFrom((int)_addr, (int)2);
+    if (Wire.available() >= 2)
+    {
+      _gpioA = Wire.read();
+      _gpioB = Wire.read();
+      readOk = true;
+      _i2cErrorCount = 0;
+      break;
+    }
+    else
+    {
+      _i2cErrorCount++;
+      delay(3);
+    }
+  }
+
+  unsigned long dt = millis() - t0;
+  if (dt > 100)
+  {
+    // Log unusually long I2C read durations for diagnosis
+    Serial.print("MCP23017: gpio read took ms=");
+    Serial.println(dt);
+  }
+
+  if (!readOk)
+  {
+    // fallback to previous cached values (prevents ghost-presses)
+    // and possibly trigger restore if many errors
+    // the resetAndRestoreRegisters call is handled above on threshold
+  }
 
   for (int i = 0; i < 16; i++)
   {
@@ -208,19 +267,123 @@ void MCP23017Controller::writeRegisters()
 
 void MCP23017Controller::writeRegister(uint8_t reg, uint8_t val)
 {
-  Wire.beginTransmission(_addr);
-  Wire.write(reg);
-  Wire.write(val);
-  Wire.endTransmission();
+  const int maxAttempts = 3;
+  for (int attempt = 0; attempt < maxAttempts; attempt++)
+  {
+    Wire.beginTransmission(_addr);
+    Wire.write(reg);
+    Wire.write(val);
+    uint8_t res = Wire.endTransmission();
+    if (res == 0)
+    {
+      return; // Success
+    }
+    else
+    {
+      // I2C error - increment error count and attempt recovery if threshold exceeded
+      _i2cErrorCount++;
+      resetAndRestoreRegisters(); // Attempt immediate recovery on write errors
+
+      delay(1);
+    }
+  }
 }
 
 uint8_t MCP23017Controller::readRegister(uint8_t reg)
 {
-  Wire.beginTransmission(_addr);
-  Wire.write(reg);
-  Wire.endTransmission();
-  Wire.requestFrom(_addr, (int)1);
-  if (Wire.available())
-    return Wire.read();
-  return 0;
+  // Robust reading: retry a few times on transient I2C errors. If still failing,
+  // return a sensible fallback for GPIO registers (use cached _gpioA/_gpioB),
+  // otherwise return 0xFF to indicate 'no change' instead of 0 which would be
+  // interpreted as a pressed (LOW) input.
+  const int maxAttempts = 3;
+  for (int attempt = 0; attempt < maxAttempts; attempt++)
+  {
+    Wire.beginTransmission(_addr);
+    // Wire.write returns the number of bytes written but we ignore it here
+    Wire.write(reg);
+    uint8_t endRes = Wire.endTransmission();
+    if (endRes != 0)
+    {
+      // bus error / NACK - short delay and retry
+      _i2cErrorCount++;
+      delay(1);
+      resetAndRestoreRegisters(); // Attempt recovery on repeated read errors
+      continue;
+    }
+
+    Wire.requestFrom((int)_addr, (int)1);
+    if (Wire.available())
+    {
+      uint8_t v = Wire.read();
+      // success -> clear error counter
+      _i2cErrorCount = 0;
+      return v;
+    }
+    // no data available - short delay then retry
+    _i2cErrorCount++;
+    resetAndRestoreRegisters(); // Attempt recovery on repeated read errors
+    delay(1);
+  }
+
+  // Wenn wiederholte Leseversuche fehlschlagen, gebe für GPIO-Register den zuletzt
+  // gelesenen Wert zurück, damit zumindest die Eingangslogik weiter funktioniert.
+  if (reg == 0x12)
+    return _gpioA;
+  if (reg == 0x13)
+    return _gpioB;
+  return 0xFF;
+}
+
+void MCP23017Controller::resetAndRestoreRegisters(bool forceReset)
+{
+  if (!(forceReset || (_i2cErrorCount >= I2C_ERROR_THRESHOLD && (millis() - _lastReinitAttempt) > I2C_REINIT_MIN_INTERVAL_MS)))
+  {
+    return; // Not time to reset yet
+  }
+
+  if (_resetCallback)
+    _resetCallback(_addr); // Trigger external hardware reset via callback
+
+  _lastReinitAttempt = millis();
+  _i2cErrorCount = 0;
+
+  // Restore configuration registers from current _pins[] state. This writes
+  // IODIR A/B, GPPU A/B and OLAT A/B based on the in-memory pin configuration.
+
+  uint8_t iodirA = 0, iodirB = 0;
+  uint8_t gppuA = 0, gppuB = 0;
+  uint8_t olatA = 0, olatB = 0;
+
+  for (int i = 0; i < 8; i++)
+  {
+    if (_pins[i].isInput)
+      iodirA |= (1 << i);
+    if (_pins[i].pullupEnabled)
+      gppuA |= (1 << i);
+    if (!_pins[i].isInput)
+      olatA |= (_pins[i].debouncedState << i);
+  }
+  for (int i = 0; i < 8; i++)
+  {
+    int idx = i + 8;
+    if (_pins[idx].isInput)
+      iodirB |= (1 << i);
+    if (_pins[idx].pullupEnabled)
+      gppuB |= (1 << i);
+    if (!_pins[idx].isInput)
+      olatB |= (_pins[idx].debouncedState << i);
+  }
+
+  // Write these registers back to the device (best-effort)
+  writeRegister(0x00, iodirA); // IODIRA
+  writeRegister(0x01, iodirB); // IODIRB
+  writeRegister(0x0C, gppuA);  // GPPUA
+  writeRegister(0x0D, gppuB);  // GPPUB
+  writeRegister(0x14, olatA);  // OLATA
+  writeRegister(0x15, olatB);  // OLATB
+
+  // Also update cached values so read fallback is consistent
+  _olatA = olatA;
+  _olatB = olatB;
+
 }

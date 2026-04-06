@@ -26,7 +26,7 @@ private:
 public:
   // accept MCP by reference to make intent clear
   Relay(MCP23017Controller &mcp, uint8_t index, char *name, uint16_t watt, uint8_t timeoutMinutes);
-  void set(bool state, unsigned long now);
+  void set(bool state, unsigned long now, bool intern = false);
   void triggerOrSet(bool state, unsigned long now);
   bool read();
   void mqttPublishState(bool full);

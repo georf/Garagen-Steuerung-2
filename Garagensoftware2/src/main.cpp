@@ -6,15 +6,19 @@
 #include <ArduinoOTA.h>
 #include <credentials.h>
 #include "MCP23017Controller.h"
+#include "ChargeConfig.h"
 #include "Relay.h"
 #include <ArduinoJson.h>
 #include "mqtt_helper.h"
 #include "bitmaps.h"
+#include "build_config.h"
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
+unsigned long now = 0;
 
 // // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET -1 // Reset pin # (or -1 if sharing Arduino reset pin)
@@ -37,28 +41,6 @@ int batteryPowerNow = 0;
 float batterySocPrev = 0;
 float batterySocNow = 0;
 bool lastPowerNet = true;
-
-class Timer
-{
-  unsigned long startTime = 0;
-
-public:
-  void start(unsigned long now) { startTime = now; }
-  unsigned long left(unsigned long now, unsigned long durationMs)
-  {
-    if (startTime >= now)
-      startTime = now - 1;
-
-    unsigned long yet = now - startTime;
-    if (yet >= durationMs)
-      return 0;
-    return durationMs - yet;
-  }
-  bool elapsed(unsigned long now, unsigned long durationMs)
-  {
-    return left(now, durationMs) == 0;
-  }
-};
 
 // Gate states
 enum GateModus
@@ -128,7 +110,7 @@ Relay relays[8] = {
 #define LED_BTNS 8 + 2
 #define LED_GATE 8 + 3
 #define LED_LID 8 + 4
-#define SW_UNUSED_1 8 + 5
+#define LED_LID_OUTSIDE 8 + 5
 #define SW_DOOR_FRONT 8 + 6
 #define SW_UNUSED_2 8 + 7
 
@@ -156,30 +138,11 @@ void addLog(const char *text, bool mqtt = true)
   displayRightNextUpdate = 0;
 }
 
-//  ----------------------------------------------------------
-// Automatische Werte für Auto-Laden
-enum class ChargeState
-{
-  IDLE,              // Laden aus
-  PRECONDITION,      // Bedingungen prüfen (2 kW, Akku > 30 %)
-  CHARGING_MIN_TIME, // Mindest-Ladezeit läuft
-  CHARGING_ACTIVE    // Mindestzeit vorbei, aber Laden läuft weiter
+ChargeConfig *chargeConfigs[] = {
+    new ChargeConfig(&relays[RELAY_2_CONTACTOR_1_PHASE], 30.0, -2000.0), // Einphasen-Kontaktor
+    new ChargeConfig(&relays[RELAY_1_CONTACTOR_3_PHASE], 50.0, -4000.0)  // Dreiphasen-Kontaktor
 };
 
-struct ChargeConfig
-{
-  uint8_t relayPin;
-  float socThreshold;   // in %
-  float powerThreshold; // W (+ = lädt, - = entlädt)
-  unsigned long minimumChargeTime = 0;
-  ChargeState chargeState = ChargeState::IDLE;
-  Timer conditionTimer;
-  Timer minChargeTimer;
-};
-ChargeConfig chargeConfigs[] = {
-    {RELAY_2_CONTACTOR_1_PHASE, 30.0, -2000.0}, // Einphasen-Kontaktor
-    {RELAY_1_CONTACTOR_3_PHASE, 50.0, -4000.0}  // Dreiphasen-Kontaktor
-};
 //  ----------------------------------------------------------
 
 // Heizungsparameter
@@ -297,7 +260,6 @@ unsigned long lastClickLid = 0;
 
 void triggerLight()
 {
-  unsigned long now = millis();
   relays[RELAY_6_LIGHT_FRONT].triggerTimeout(now);
   if (relays[RELAY_5_LIGHT_MIDDLE].read())
     relays[RELAY_5_LIGHT_MIDDLE].triggerTimeout(now);
@@ -307,7 +269,9 @@ void triggerLight()
 
 void clickLid()
 {
-  if (lastClickLid + LidClickDebounceTime > millis())
+  // Use wrap-safe subtraction instead of adding intervals to timestamps.
+  // Avoids errors when millis() overflows.
+  if ((now - lastClickLid) < LidClickDebounceTime)
   {
     mqttDebug("click lid ignored due to debounce");
     return;
@@ -316,7 +280,7 @@ void clickLid()
   addLog("Lid toggle");
   triggerLight();
 
-  lastClickLid = millis();
+  lastClickLid = now;
   if (state == STOPPING || state == IDLE)
   {
     // Lid is open, so close it
@@ -348,7 +312,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
   char buffer[56];
 
-  if (strcmp(topic, "adebar/carport/gate/state") == 0)
+  if (strcmp(topic, ADEBAR_TOPIC("carport/gate/state")) == 0)
   {
     if (!strncmp((char *)payload, "closed", length) || !strncmp((char *)payload, "unknown", length))
     {
@@ -372,7 +336,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     }
   }
 
-  if (!strcmp(topic, "adebar/garage/cover/set"))
+  if (!strcmp(topic, ADEBAR_TOPIC("garage/cover/set")))
   {
     if (!strncmp((char *)payload, "STOP", length))
       state = STOPPING;
@@ -399,7 +363,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  if (!strcmp(topic, "adebar/garage/system/set"))
+  if (!strcmp(topic, ADEBAR_TOPIC("garage/system/set")))
   {
     if (!strncmp((char *)payload, "RESTART", length))
     {
@@ -408,7 +372,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  if (!strcmp(topic, "deye12k/cell_temp_lowest/state"))
+  if (!strcmp(topic, DEYE12K_TOPIC("cell_temp_lowest/state")))
   {
     char *endptr;
     float value = strtof((char *)payload, &endptr);
@@ -416,7 +380,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     if (value < HEATING_MIN_VALUE)
     {
       addLog("Heating ON", false);
-      relays[RELAY_0_HEATING].triggerTimeout(millis());
+      relays[RELAY_0_HEATING].triggerTimeout(now);
     }
 
     return;
@@ -430,13 +394,13 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     if (value < BATTERY_MIN_VALUE)
     {
       addLog("Loading ON", false);
-      relays[RELAY_3_LID_MOTOR].triggerTimeout(millis());
+      relays[RELAY_3_LID_MOTOR].triggerTimeout(now);
     }
 
     return;
   }
 
-  if (strcmp(topic, "adebar/time") == 0)
+  if (strcmp(topic, ADEBAR_TOPIC("time")) == 0)
   {
     strncpy(timeNow, (char *)payload, length);
     timeNow[length] = '\0';
@@ -454,7 +418,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  if (strcmp(topic, "energymeter/power_curr/state") == 0)
+  if (strcmp(topic, ENERGYMETER_TOPIC("power_curr/state")) == 0)
   {
     strncpy(buffer, (char *)payload, length);
     buffer[length] = '\0';
@@ -468,7 +432,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  if (strcmp(topic, "deye12k/battery_power/state") == 0)
+  if (strcmp(topic, DEYE12K_TOPIC("battery_power/state")) == 0)
   {
     strncpy(buffer, (char *)payload, length);
     buffer[length] = '\0';
@@ -482,7 +446,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  if (strcmp(topic, "deye12k/battery_soc/state") == 0)
+  if (strcmp(topic, DEYE12K_TOPIC("battery_soc/state")) == 0)
   {
     strncpy(buffer, (char *)payload, length);
     buffer[length] = '\0';
@@ -498,32 +462,34 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
 
   for (uint8_t relay = 0; relay < 8; relay++)
   {
-    sprintf(buffer, "adebar/garage/relay%d/set", relay);
+    sprintf(buffer, ADEBAR_TOPIC("garage/relay%d/set"), relay);
     if (!strcmp(topic, buffer))
     {
       if (!strncmp((char *)payload, "ON", length))
       {
-        relays[relay].triggerOrSet(true, millis());
-
         for (uint8_t config = 0; config < 2; config++)
         {
-          if (relay == chargeConfigs[config].relayPin)
+          if (relay == chargeConfigs[config]->relay->getIndex())
           {
-            chargeConfigs[config].chargeState = ChargeState::CHARGING_MIN_TIME;
-            chargeConfigs[config].minimumChargeTime = millis() + 15UL * 60UL * 1000UL; // Mindestladezeit 15 Minuten
-            chargeConfigs[config].minChargeTimer.start(millis());
+            chargeConfigs[config]->setChargeTime(now, 15UL * 60UL * 1000UL); // Mindestladezeit 15 Minuten
+            return;
           }
         }
+
+        relays[relay].triggerOrSet(true, now);
       }
       else if (!strncmp((char *)payload, "OFF", length))
       {
-        relays[relay].set(false, millis());
-
         for (uint8_t config = 0; config < 2; config++)
         {
-          if (relay == chargeConfigs[config].relayPin)
-            chargeConfigs[config].chargeState = ChargeState::IDLE;
+          if (relay == chargeConfigs[config]->relay->getIndex())
+          {
+            chargeConfigs[config]->stopCharging(now);
+            ;
+            return;
+          }
         }
+        relays[relay].set(false, now);
       }
       return;
     }
@@ -560,7 +526,7 @@ bool mqttPublish(const char *topic, const char *message)
 // MQTT Debug senden
 bool mqttDebug(const char *message)
 {
-  return mqttPublish("adebar/garage/system/debug", message);
+  return mqttPublish(ADEBAR_TOPIC("garage/system/debug"), message);
 }
 
 void mqttSendAdebarGarageIpAddress(boolean full)
@@ -571,14 +537,14 @@ void mqttSendAdebarGarageIpAddress(boolean full)
     // see https://www.home-assistant.io/integrations/sensor.mqtt/
     const char *discoveryConfig = "{"
                                   "\"name\":\"Garage IP-Adresse\","
-                                  "\"stat_t\":\"adebar/garage/ip_address/state\","
-                                  "\"uniq_id\":\"adebar_garage_ip_address\","
-                                  "\"dev\":{"
-                                  "\"identifiers\":[\"adebar_garage\"],"
-                                  "\"name\":\"Garage\""
-                                  "}"
-                                  "}";
-    mqttPublish("homeassistant/sensor/adebar_garage_ip_address/config", discoveryConfig);
+                                  "\"stat_t\":\"" ADEBAR_TOPIC("garage/ip_address/state") "\","
+                                                                                          "\"uniq_id\":\"" ADEBAR_ROOT "_garage_ip_address\","
+                                                                                          "\"dev\":{"
+                                                                                          "\"identifiers\":[\"" ADEBAR_ROOT "_garage\"],"
+                                                                                          "\"name\":\"Garage\""
+                                                                                          "}"
+                                                                                          "}";
+    mqttPublish("homeassistant/sensor/" ADEBAR_ROOT "_garage_ip_address/config", discoveryConfig);
   }
 
   if (WiFi.status() == WL_CONNECTED)
@@ -587,7 +553,7 @@ void mqttSendAdebarGarageIpAddress(boolean full)
     char ip_char[ip.length() + 1];
     ip.toCharArray(ip_char, ip.length() + 1);
 
-    mqttPublish("adebar/garage/ip_address/state", ip_char);
+    mqttPublish(ADEBAR_TOPIC("garage/ip_address/state"), ip_char);
   }
 }
 
@@ -599,15 +565,15 @@ void mqttSendAdebarGarageRestartButton(boolean full)
   // see https://www.home-assistant.io/integrations/button.mqtt/
   const char *discoveryConfig = "{"
                                 "\"name\":\"Garage Neustart\","
-                                "\"uniq_id\":\"adebar_garage_system_restart\","
-                                "\"cmd_t\":\"adebar/garage/system/set\","
-                                "\"payload_press\":\"RESTART\","
-                                "\"dev\":{"
-                                "\"identifiers\":[\"adebar_garage\"],"
-                                "\"name\":\"Garage\""
-                                "}"
-                                "}";
-  mqttPublish("homeassistant/button/adebar_garage_system_restart/config", discoveryConfig);
+                                "\"uniq_id\":\"" ADEBAR_ROOT "_garage_system_restart\","
+                                "\"cmd_t\":\"" ADEBAR_TOPIC("garage/system/set") "\","
+                                                                                 "\"payload_press\":\"RESTART\","
+                                                                                 "\"dev\":{"
+                                                                                 "\"identifiers\":[\"" ADEBAR_ROOT "_garage\"],"
+                                                                                 "\"name\":\"Garage\""
+                                                                                 "}"
+                                                                                 "}";
+  mqttPublish("homeassistant/button/" ADEBAR_ROOT "_garage_system_restart/config", discoveryConfig);
 }
 
 void mqttSendAdebarGarageDoor(uint8_t door, boolean full)
@@ -618,23 +584,23 @@ void mqttSendAdebarGarageDoor(uint8_t door, boolean full)
     JsonDocument discoveryConfig;
     discoveryConfig["name"] = door == 0 ? "Garage Vordertuer" : "Garage Hintertuer";
     discoveryConfig["dev_cla"] = "door";
-    discoveryConfig["stat_t"] = door == 0 ? "adebar/garage/door_front/state" : "adebar/garage/door_back/state";
-    discoveryConfig["uniq_id"] = door == 0 ? "adebar_garage_door_front" : "adebar_garage_door_back";
+    discoveryConfig["stat_t"] = door == 0 ? ADEBAR_TOPIC("garage/door_front/state") : ADEBAR_TOPIC("garage/door_back/state");
+    discoveryConfig["uniq_id"] = door == 0 ? ADEBAR_ROOT "_garage_door_front" : ADEBAR_ROOT "_garage_door_back";
 
     JsonObject device = discoveryConfig["dev"].to<JsonObject>();
-    device["identifiers"][0] = "adebar_garage";
+    device["identifiers"][0] = ADEBAR_ROOT "_garage";
     device["name"] = "Garage";
 
     char buffer[256];
     serializeJson(discoveryConfig, buffer);
 
-    mqttPublish(door == 0 ? "homeassistant/binary_sensor/adebar_garage_door_front/config" : "homeassistant/binary_sensor/adebar_garage_door_back/config", buffer);
+    mqttPublish(door == 0 ? "homeassistant/binary_sensor/" ADEBAR_ROOT "_garage_door_front/config" : "homeassistant/binary_sensor/" ADEBAR_ROOT "_garage_door_back/config", buffer);
   }
 
   if (door == 0)
-    mqttPublish("adebar/garage/door_front/state", mcp_handheld.digitalRead(SW_DOOR_FRONT) == DOOR_OPEN ? "ON" : "OFF");
+    mqttPublish(ADEBAR_TOPIC("garage/door_front/state"), mcp_handheld.digitalRead(SW_DOOR_FRONT) == DOOR_OPEN ? "ON" : "OFF");
   else
-    mqttPublish("adebar/garage/door_back/state", mcp_backend.digitalRead(SW_DOOR_BACK) == DOOR_OPEN ? "ON" : "OFF");
+    mqttPublish(ADEBAR_TOPIC("garage/door_back/state"), mcp_backend.digitalRead(SW_DOOR_BACK) == DOOR_OPEN ? "ON" : "OFF");
 }
 
 void mqttSendAdebarGarageCover(boolean full)
@@ -645,29 +611,29 @@ void mqttSendAdebarGarageCover(boolean full)
     JsonDocument discoveryConfig;
     discoveryConfig["name"] = "Garagentor";
     discoveryConfig["dev_cla"] = "garage";
-    discoveryConfig["cmd_t"] = "adebar/garage/cover/set";
-    discoveryConfig["stat_t"] = "adebar/garage/cover/state";
-    discoveryConfig["uniq_id"] = "adebar_garage_cover";
+    discoveryConfig["cmd_t"] = ADEBAR_TOPIC("garage/cover/set");
+    discoveryConfig["stat_t"] = ADEBAR_TOPIC("garage/cover/state");
+    discoveryConfig["uniq_id"] = ADEBAR_ROOT "_garage_cover";
 
     JsonObject device = discoveryConfig["dev"].to<JsonObject>();
-    device["identifiers"][0] = "adebar_garage";
+    device["identifiers"][0] = ADEBAR_ROOT "_garage";
     device["name"] = "Garage";
 
     char buffer[256];
     serializeJson(discoveryConfig, buffer);
-    mqttPublish("homeassistant/cover/adebar_garage_cover/config", buffer);
+    mqttPublish("homeassistant/cover/" ADEBAR_ROOT "_garage_cover/config", buffer);
   }
 
   if (lidRealState == LID_REAL_CLOSED)
-    mqttPublish("adebar/garage/cover/state", "closed");
+    mqttPublish(ADEBAR_TOPIC("garage/cover/state"), "closed");
   else if (lidRealState == LID_REAL_OPEN)
-    mqttPublish("adebar/garage/cover/state", "open");
+    mqttPublish(ADEBAR_TOPIC("garage/cover/state"), "open");
   else if (lidRealState == LID_REAL_OPENING)
-    mqttPublish("adebar/garage/cover/state", "opening");
+    mqttPublish(ADEBAR_TOPIC("garage/cover/state"), "opening");
   else if (lidRealState == LID_REAL_CLOSING)
-    mqttPublish("adebar/garage/cover/state", "closing");
+    mqttPublish(ADEBAR_TOPIC("garage/cover/state"), "closing");
   else if (lidRealState == LID_REAL_STOPPED)
-    mqttPublish("adebar/garage/cover/state", "stopped");
+    mqttPublish(ADEBAR_TOPIC("garage/cover/state"), "stopped");
 }
 
 void mqttSendStatus(boolean full)
@@ -681,7 +647,7 @@ void mqttSendStatus(boolean full)
   mqttSendAdebarGarageCover(full);
   mqttSendAdebarGarageRestartButton(full);
 
-  lastMqttStatusUpdate = millis();
+  lastMqttStatusUpdate = now;
 }
 
 bool connectMQTT(unsigned long now)
@@ -697,18 +663,18 @@ bool connectMQTT(unsigned long now)
   if (mqttClient.connect("garage2", mqttUser, mqttPassword))
   {
     addLog("MQTT connected", false);
-    mqttClient.subscribe("adebar/time"); // Uhrzeit
+    mqttClient.subscribe(ADEBAR_TOPIC("time")); // Uhrzeit
 
-    mqttClient.subscribe("deye12k/battery_power/state");       // Batteriewechselrichter Leistung
-    mqttClient.subscribe("deye12k/battery_soc/state");         // Batteriewechselrichter SOC
-    mqttClient.subscribe("deye12k/cell_temp_lowest/state");    // Batteriewechselrichter Temperatur
-    mqttClient.subscribe("deye12k/cell_voltage_lowest/state"); // Batteriewechselrichter Zellspannung
-    mqttClient.subscribe("outdoor/outdoor_temp/state");        // Temperatur
+    mqttClient.subscribe(DEYE12K_TOPIC("battery_power/state"));       // Batteriewechselrichter Leistung
+    mqttClient.subscribe(DEYE12K_TOPIC("battery_soc/state"));         // Batteriewechselrichter SOC
+    mqttClient.subscribe(DEYE12K_TOPIC("cell_temp_lowest/state"));    // Batteriewechselrichter Temperatur
+    mqttClient.subscribe(DEYE12K_TOPIC("cell_voltage_lowest/state")); // Batteriewechselrichter Zellspannung
+    mqttClient.subscribe("outdoor/outdoor_temp/state");               // Temperatur
 
-    mqttClient.subscribe("energymeter/power_curr/state"); // Zähler Leistung
-    mqttClient.subscribe("adebar/garage/+/set");
-    mqttClient.subscribe("adebar/carport/gate/state");
-    mqttClient.publish("adebar/garage/system/state", "connected");
+    mqttClient.subscribe(ENERGYMETER_TOPIC("power_curr/state")); // Zähler Leistung
+    mqttClient.subscribe(ADEBAR_TOPIC("garage/+/set"));
+    mqttClient.subscribe(ADEBAR_TOPIC("carport/gate/state"));
+    mqttClient.publish(ADEBAR_TOPIC("garage/system/state"), "connected");
     mqttSendStatus(true);
     return true;
   }
@@ -766,6 +732,7 @@ void handleLid(unsigned long now)
   {
     lastDirection = UP;
     mcp_handheld.setOutputModus(LED_LID, fastBlink);
+    mcp_handheld.setOutputModus(LED_LID_OUTSIDE, fastBlink);
     relays[RELAY_3_LID_MOTOR].set(true, now);
     mqttSendAdebarGarageCover(false);
     if (mcp_backend.digitalRead(SW_24VOLT)) // 24 Volt liegen an
@@ -851,6 +818,7 @@ void handleLid(unsigned long now)
   {
     lastDirection = DOWN;
     mcp_handheld.setOutputModus(LED_LID, fastBlink);
+    mcp_handheld.setOutputModus(LED_LID_OUTSIDE, fastBlink);
     relays[RELAY_3_LID_MOTOR].set(true, now);
     mqttSendAdebarGarageCover(false);
     if (mcp_backend.digitalRead(SW_24VOLT)) // 24 Volt liegen an
@@ -948,7 +916,12 @@ void handleLid(unsigned long now)
     mqttSendStatus(false);
     resetAveraegeMotorCurrent();
 
-    mcp_handheld.setOutputModus(LED_LID, off);
+    if (lidRealState == LID_REAL_CLOSED)
+      mcp_handheld.setOutputModus(LED_LID, off);
+    else
+      mcp_handheld.setOutputModus(LED_LID, on);
+
+    mcp_handheld.setOutputModus(LED_LID_OUTSIDE, off);
 
     return;
   }
@@ -965,17 +938,17 @@ void clickGate()
   addLog("Gate toggle");
   if (gateModus == GATE_CLOSED || gateModus == GATE_STOPPED)
   {
-    mqttPublish("adebar/carport/gate/set", "OPEN");
+    mqttPublish(ADEBAR_TOPIC("carport/gate/set"), "OPEN");
     mcp_handheld.setOutputModus(LED_GATE, fastBlink);
   }
   else if (gateModus == GATE_OPENED)
   {
-    mqttPublish("adebar/carport/gate/set", "CLOSE");
+    mqttPublish(ADEBAR_TOPIC("carport/gate/set"), "CLOSE");
     mcp_handheld.setOutputModus(LED_GATE, fastBlink);
   }
   else if (gateModus == GATE_RUNNING)
   {
-    mqttPublish("adebar/carport/gate/set", "STOP");
+    mqttPublish(ADEBAR_TOPIC("carport/gate/set"), "STOP");
     mcp_handheld.setOutputModus(LED_GATE, off);
   }
 }
@@ -983,7 +956,7 @@ void clickGate()
 void clickBell()
 {
   addLog("Bell btn pressed", false);
-  mqttPublish("adebar/klingelbox/bell_button/set", "SET");
+  mqttPublish(ADEBAR_TOPIC("klingelbox/bell_button/set"), "SET");
 }
 
 // ----------------------------------------------------------
@@ -993,81 +966,6 @@ void setupOTA()
 {
   ArduinoOTA.setHostname("garage-controller");
   ArduinoOTA.begin();
-}
-
-#define CONDITION_TIME 5 * 60000 // 5 Minuten
-#define TOLERANCE_FACTOR 10      // 10 * 50% (SOC) / 2 => 250 W Toleranz
-
-void updateCharging(unsigned long now, uint8_t configIndex)
-{
-  char buffer[64];
-  int powerNow = batteryPowerNow + netPowerNow; // Gesamtleistung, die gerade übrig ist
-
-  switch (chargeConfigs[configIndex].chargeState)
-  {
-
-  case ChargeState::IDLE:
-    if ((batterySocNow > chargeConfigs[configIndex].socThreshold && powerNow < chargeConfigs[configIndex].powerThreshold))
-    {
-      chargeConfigs[configIndex].conditionTimer.start(now);
-      chargeConfigs[configIndex].chargeState = ChargeState::PRECONDITION;
-      snprintf(buffer, sizeof(buffer), "Precondition started relay %d", chargeConfigs[configIndex].relayPin);
-      addLog(buffer);
-    }
-    break;
-
-  case ChargeState::PRECONDITION:
-    if (powerNow >= chargeConfigs[configIndex].powerThreshold)
-    {
-      chargeConfigs[configIndex].chargeState = ChargeState::IDLE;
-      break;
-    }
-
-    if (chargeConfigs[configIndex].conditionTimer.elapsed(now, CONDITION_TIME))
-    {
-      relays[chargeConfigs[configIndex].relayPin].set(true, now);
-      chargeConfigs[configIndex].minimumChargeTime = CONDITION_TIME;
-      chargeConfigs[configIndex].minChargeTimer.start(now);
-      chargeConfigs[configIndex].chargeState = ChargeState::CHARGING_MIN_TIME;
-      snprintf(buffer, sizeof(buffer), "Charging min time relay %d", chargeConfigs[configIndex].relayPin);
-      addLog(buffer);
-    }
-    break;
-
-  case ChargeState::CHARGING_MIN_TIME:
-    if (chargeConfigs[configIndex].minChargeTimer.elapsed(now, chargeConfigs[configIndex].minimumChargeTime))
-    {
-      chargeConfigs[configIndex].chargeState = ChargeState::CHARGING_ACTIVE;
-      snprintf(buffer, sizeof(buffer), "Charging active relay %d", chargeConfigs[configIndex].relayPin);
-      addLog(buffer);
-    }
-    break;
-
-  case ChargeState::CHARGING_ACTIVE:
-    // Laden darf weiterlaufen solange *irgendwie* geladen wird
-    int tolerance = TOLERANCE_FACTOR * batterySocNow / 2; // je voller der Akku, desto mehr Toleranz
-    if ((batteryPowerNow > tolerance && netPowerNow > 0) || (batteryPowerNow >= 0 && netPowerNow > tolerance))
-    {
-      relays[chargeConfigs[configIndex].relayPin].set(false, now);
-      chargeConfigs[configIndex].chargeState = ChargeState::IDLE;
-
-      snprintf(buffer, sizeof(buffer), "Charging stopped relay %d", chargeConfigs[configIndex].relayPin);
-      addLog(buffer);
-      return;
-    }
-
-    if (configIndex == 0) // Einphasen-Kontaktor
-    {
-      // Wenn der Einphasen-Kontaktor aus ist und der Dreiphasen-Kontaktor inaktiv ist, aktiviere ihn
-      if (relays[chargeConfigs[configIndex].relayPin].read() == false && chargeConfigs[1].chargeState == ChargeState::IDLE)
-      {
-        snprintf(buffer, sizeof(buffer), "Switching to single-phase charging relay %d", chargeConfigs[configIndex].relayPin);
-        addLog(buffer);
-        relays[chargeConfigs[configIndex].relayPin].set(true, now);
-      }
-    }
-    break;
-  }
 }
 
 void updateDisplayLeft(unsigned long now)
@@ -1219,13 +1117,21 @@ void updateDisplayRight(unsigned long now)
     displayRight.setTextSize(2);
 
     displayRight.setCursor(35, 20);
-    if (chargeConfigs[displayRightMode].chargeState == ChargeState::IDLE || chargeConfigs[displayRightMode].chargeState == ChargeState::PRECONDITION)
+    if (chargeConfigs[displayRightMode]->state == ChargeState::IDLE)
       displayRight.print("aus");
-    else if (chargeConfigs[displayRightMode].chargeState == ChargeState::CHARGING_ACTIVE)
+    else if (chargeConfigs[displayRightMode]->state == ChargeState::PRECONDITION)
+      displayRight.print("fast an");
+    else if (chargeConfigs[displayRightMode]->state == ChargeState::CHARGING_ACTIVE)
       displayRight.print("an");
+    else if (chargeConfigs[displayRightMode]->state == ChargeState::POSTCONDITION)
+    {
+      displayRight.setTextSize(1);
+      displayRight.print("fast aus");
+      displayRight.setTextSize(2);
+    }
     else
     {
-      unsigned long left = chargeConfigs[displayRightMode].minChargeTimer.left(now, chargeConfigs[displayRightMode].minimumChargeTime);
+      unsigned long left = chargeConfigs[displayRightMode]->minimumChargeTimer.left(now);
       left += 60 * 1000; // Aufrunden auf nächste Minute
       hours = left / (60UL * 60UL * 1000UL);
       minutes = (left % (60UL * 60UL * 1000UL)) / (60UL * 1000UL);
@@ -1281,7 +1187,6 @@ void updateDisplayRight(unsigned long now)
 void btnLightClicked()
 {
   addLog("BTN_LIGHT clicked");
-  unsigned long now = millis();
 
   if (relays[RELAY_7_LIGHT_BACK].read())
   {
@@ -1343,12 +1248,25 @@ void btnOkayClicked()
   displayRightNextUpdate = 0;
   if (displayRightMode == 0 || displayRightMode == 1)
   {
-    relays[chargeConfigs[displayRightMode].relayPin].set(true, millis());
-    chargeConfigs[displayRightMode].chargeState = ChargeState::CHARGING_MIN_TIME;
-    chargeConfigs[displayRightMode].minimumChargeTime = displaySelectedValue * 30UL * 60UL * 1000UL;
-    chargeConfigs[displayRightMode].minChargeTimer.start(millis());
+    chargeConfigs[displayRightMode]->setChargeTime(now, displaySelectedValue * 30UL * 60UL * 1000UL);
     displaySelectedValue = 0;
   }
+}
+
+void resetMCP23017(uint8_t address)
+{
+  addLog("MCP error");
+
+  // MCP23017 zurücksetzen
+  digitalWrite(D0, LOW);
+  delay(10);
+  digitalWrite(D0, HIGH);
+  delay(5);
+
+  if (address == MCP_BACKEND_ADDR)
+    mcp_handheld.resetAndRestoreRegisters(true);
+  if (address == MCP_HANDHELD_ADDR)
+    mcp_backend.resetAndRestoreRegisters(true);
 }
 
 // ----------------------------------------------------------
@@ -1356,6 +1274,7 @@ void btnOkayClicked()
 // ----------------------------------------------------------
 void setup()
 {
+  now = millis();
 
   Serial.begin(115200);
 
@@ -1406,7 +1325,7 @@ void setup()
   }
 
   // MCP auf dem Backend einrichten
-  mcp_backend.begin(MCP_BACKEND_ADDR);
+  mcp_backend.begin(MCP_BACKEND_ADDR, resetMCP23017);
 
   mcp_backend.setPinMode(SW_24VOLT, INPUT);
   mcp_backend.configureClick(SW_RADIO0, INPUT_PULLUP, clickGate);
@@ -1440,7 +1359,7 @@ void setup()
   mcp_backend.digitalWrite(8 + RELAY_7_LIGHT_BACK, HIGH); // Relais aus
 
   // MCP auf dem Handheld einrichten
-  mcp_handheld.begin(MCP_HANDHELD_ADDR);
+  mcp_handheld.begin(MCP_HANDHELD_ADDR, resetMCP23017);
 
   mcp_handheld.configureClick(SW_BTN_LIGHT, INPUT_PULLUP, btnLightClicked, HIGH);
   mcp_handheld.configureClick(SW_BTN_GATE, INPUT_PULLUP, clickGate, HIGH);
@@ -1466,7 +1385,9 @@ void setup()
   mcp_handheld.setPinMode(LED_LID, OUTPUT);
   mcp_handheld.digitalWrite(LED_LID, LOW);
 
-  mcp_handheld.setPinMode(SW_UNUSED_1, INPUT_PULLUP);
+  mcp_handheld.setPinMode(LED_LID_OUTSIDE, OUTPUT);
+  mcp_handheld.digitalWrite(LED_LID_OUTSIDE, LOW);
+
   mcp_handheld.setPinMode(SW_DOOR_FRONT, INPUT_PULLUP, LOW);
   mcp_handheld.setCallbackChange(SW_DOOR_FRONT, []()
                                  {
@@ -1492,7 +1413,7 @@ void setup()
 
   // Alle Relais aus
   for (int i = 0; i < 8; i++)
-    relays[i].set(false, millis());
+    relays[i].set(false, now);
 
   displayLeft.clearDisplay();
   displayLeft.setTextColor(SSD1306_WHITE);
@@ -1508,7 +1429,7 @@ void setup()
 void loop()
 {
   // Aktuelle Zeit nur einmal berechnen
-  unsigned long now = millis();
+  now = millis();
 
   // WLAN und MQTT-Stuff
   if (connectWifiNonBlocking(now))
@@ -1518,17 +1439,15 @@ void loop()
     {
       mqttClient.loop();
 
-      if ((lastMqttStatusUpdate + MQTT_STATUS_INTERVAL) < now)
+      // Use wrap-safe subtraction to check interval expiration. This is safe
+      // across millis() overflow.
+      if ((now - lastMqttStatusUpdate) >= MQTT_STATUS_INTERVAL)
       {
         // Alle 2 Tage ein Reset
         // nur um 2 Uhr, 3 Uhr, 4 Uhr oder 5 Uhr
         // nur wenn bestimmte Relais ausgeschaltet sind
         if (now > 2 * 24 * 60 * 60 * 1000 && lidRealState == LID_REAL_CLOSED &&
-            (strcmp(timeNow, "02:00") == 0 || strcmp(timeNow, "03:00") == 0 ||  strcmp(timeNow, "04:00") == 0 || strcmp(timeNow, "05:00") == 0)
-            && !relays[RELAY_1_CONTACTOR_3_PHASE].read()
-            && !relays[RELAY_2_CONTACTOR_1_PHASE].read()
-            && !relays[RELAY_6_LIGHT_FRONT].read()
-        )
+            (strcmp(timeNow, "02:00") == 0 || strcmp(timeNow, "03:00") == 0 || strcmp(timeNow, "04:00") == 0 || strcmp(timeNow, "05:00") == 0) && !relays[RELAY_1_CONTACTOR_3_PHASE].read() && !relays[RELAY_2_CONTACTOR_1_PHASE].read() && !relays[RELAY_6_LIGHT_FRONT].read())
           ESP.restart();
 
         mqttSendStatus(true);
@@ -1547,8 +1466,9 @@ void loop()
   for (uint8_t i = 0; i < 8; i++)
     relays[i].loop(now);
 
-  updateCharging(now, 0);
-  updateCharging(now, 1);
+  int powerNow = batteryPowerNow + netPowerNow; // Gesamtleistung, die gerade übrig ist
+  chargeConfigs[0]->loop(now, powerNow, batterySocNow);
+  chargeConfigs[1]->loop(now, powerNow, batterySocNow);
 
   updateDisplayLeft(now);
   updateDisplayRight(now);
@@ -1556,13 +1476,17 @@ void loop()
   if (mcp_backend.digitalRead(SW_DOOR_BACK) == DOOR_OPEN || mcp_handheld.digitalRead(SW_DOOR_FRONT) == DOOR_OPEN)
     triggerLight();
 
-  if (chargeConfigs[0].chargeState == ChargeState::IDLE || chargeConfigs[0].chargeState == ChargeState::PRECONDITION)
+  if (chargeConfigs[0]->state == ChargeState::IDLE || chargeConfigs[0]->state == ChargeState::PRECONDITION)
     mcp_handheld.setOutputModus(LED_CHARGE_LIGHT, off);
+  else if (chargeConfigs[0]->hardCharge)
+    mcp_handheld.setOutputModus(LED_CHARGE_LIGHT, on);
   else
     mcp_handheld.setOutputModus(LED_CHARGE_LIGHT, blink);
 
-  if (chargeConfigs[1].chargeState == ChargeState::IDLE || chargeConfigs[1].chargeState == ChargeState::PRECONDITION)
+  if (chargeConfigs[1]->state == ChargeState::IDLE || chargeConfigs[1]->state == ChargeState::PRECONDITION)
     mcp_handheld.setOutputModus(LED_CHARGE_HEAVY, off);
+  else if (chargeConfigs[1]->hardCharge)
+    mcp_handheld.setOutputModus(LED_CHARGE_HEAVY, on);
   else
     mcp_handheld.setOutputModus(LED_CHARGE_HEAVY, blink);
 }
