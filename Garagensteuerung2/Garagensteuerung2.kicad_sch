@@ -5073,10 +5073,28 @@
 		(uuid "0cbadb1a-c665-4fcf-b637-01d6119af9d1")
 	)
 	(junction
+		(at 245.11 137.16)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1266175b-0fcf-4a18-8ebe-236b51dca693")
+	)
+	(junction
 		(at 264.16 29.21)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "13a1d2ad-1e9e-4cf6-bee6-9ba48232ed33")
+	)
+	(junction
+		(at 259.08 168.91)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "15b817a0-a6a0-488b-94ad-70036e6190d2")
+	)
+	(junction
+		(at 248.92 118.11)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "26d87597-df3d-4301-a1ab-637a352daae4")
 	)
 	(junction
 		(at 252.73 133.35)
@@ -5115,6 +5133,12 @@
 		(uuid "33df19fc-77e2-4500-8122-aaf9a54eee4c")
 	)
 	(junction
+		(at 259.08 173.99)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3bef90ae-ef95-4305-9e8a-e32e7d95cdfe")
+	)
+	(junction
 		(at 267.97 33.02)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5139,6 +5163,12 @@
 		(uuid "4f12728f-3f56-4099-baeb-cfeddc6bc39c")
 	)
 	(junction
+		(at 251.46 105.41)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4fb0a82a-ff83-4279-bbf8-f632046ab240")
+	)
+	(junction
 		(at 267.97 20.32)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5157,10 +5187,22 @@
 		(uuid "57ab0c43-189a-45fc-ba0e-0a1f33b3bc20")
 	)
 	(junction
+		(at 259.08 181.61)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "58ab2af1-6ea2-43ef-834b-b8701c6dc288")
+	)
+	(junction
 		(at 262.89 74.93)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "58e45ea7-c49a-4d30-a35f-890bc171565c")
+	)
+	(junction
+		(at 246.38 130.81)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5952c66b-3053-4f67-8b9c-fba311c75379")
 	)
 	(junction
 		(at 111.76 76.2)
@@ -5175,6 +5217,12 @@
 		(uuid "5fdc3f48-d4b4-4dfc-8cde-20fe946ba75a")
 	)
 	(junction
+		(at 259.08 186.69)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5fe8d749-e64c-4b81-8373-979be1dba41d")
+	)
+	(junction
 		(at 121.92 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5187,6 +5235,12 @@
 		(uuid "74ab417d-ece7-4076-9442-8b77b69d85d7")
 	)
 	(junction
+		(at 243.84 143.51)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7788f6f1-88ba-4d49-b7c9-7c6728dd363f")
+	)
+	(junction
 		(at 262.89 86.36)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5197,6 +5251,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7cb5b725-9b25-4b68-bf58-f582a44543b7")
+	)
+	(junction
+		(at 250.19 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7fa4f48e-a68f-4187-89a8-7a7737fe174f")
 	)
 	(junction
 		(at 101.6 76.2)
@@ -5241,6 +5301,12 @@
 		(uuid "9d1ac67b-8a5a-4398-802d-3db7cb794d0f")
 	)
 	(junction
+		(at 241.3 156.21)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a2f2b2ab-4f1f-4a3d-afe1-d677834ad155")
+	)
+	(junction
 		(at 252.73 139.7)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5283,6 +5349,12 @@
 		(uuid "bba75c5d-f426-4ee3-87ae-98dbf5b2f0fa")
 	)
 	(junction
+		(at 259.08 184.15)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "bdc5d427-b5bb-4f96-a39c-3bd1d414b778")
+	)
+	(junction
 		(at 252.73 146.05)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5311,6 +5383,18 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c7d09e83-dda4-4010-85c8-845fdf433146")
+	)
+	(junction
+		(at 259.08 176.53)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d250a68a-5028-4a48-982a-9c71a0f67388")
+	)
+	(junction
+		(at 259.08 171.45)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d9133f80-8e16-4ddf-b029-0a9bd47ea4eb")
 	)
 	(junction
 		(at 190.5 110.49)
@@ -5367,10 +5451,32 @@
 		(uuid "fa5d9a89-d332-4a6f-8b9c-53a02bee1232")
 	)
 	(junction
+		(at 242.57 149.86)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fb3003ab-7402-4810-9c51-577b01f2fb0a")
+	)
+	(junction
+		(at 247.65 124.46)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fbf1fe85-e051-4379-86ca-e18219c4bd09")
+	)
+	(junction
+		(at 259.08 179.07)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fc0c63d2-02dc-43f5-83aa-60e4330179fa")
+	)
+	(junction
 		(at 200.66 120.65)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ffce6099-7ef2-4a79-9338-7090f182ee71")
+	)
+	(no_connect
+		(at 267.97 31.75)
+		(uuid "136b6268-8a9c-4336-9adb-9c10bf638498")
 	)
 	(no_connect
 		(at 96.52 96.52)
@@ -5395,6 +5501,10 @@
 	(no_connect
 		(at 96.52 81.28)
 		(uuid "78210e39-ff7d-461a-98eb-c0a0ff4a1a40")
+	)
+	(no_connect
+		(at 245.11 91.44)
+		(uuid "7ece4ae2-a8e8-411e-9f49-49f2d9e596b3")
 	)
 	(no_connect
 		(at 34.29 166.37)
@@ -5456,16 +5566,6 @@
 	)
 	(wire
 		(pts
-			(xy 241.3 91.44) (xy 245.11 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0225263d-6dfc-476b-9fb2-cb7c5b2c1497")
-	)
-	(wire
-		(pts
 			(xy 127 71.12) (xy 127 88.9)
 		)
 		(stroke
@@ -5493,6 +5593,16 @@
 			(type default)
 		)
 		(uuid "039b0812-df1e-4003-a3eb-1dfc4895326c")
+	)
+	(wire
+		(pts
+			(xy 245.11 137.16) (xy 245.11 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "03cded45-0b9e-4ea6-9e50-2b3f6bf877fd")
 	)
 	(wire
 		(pts
@@ -5553,6 +5663,16 @@
 			(type default)
 		)
 		(uuid "0daa967a-d853-48e0-b446-bad2b978de57")
+	)
+	(wire
+		(pts
+			(xy 259.08 173.99) (xy 259.08 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0dd3804f-5912-4cec-a11c-cc437539b51b")
 	)
 	(wire
 		(pts
@@ -5635,6 +5755,16 @@
 		)
 		(uuid "14917301-bcc4-43bb-a0ba-955ee7d90aeb")
 	)
+	(wire
+		(pts
+			(xy 241.3 95.25) (xy 241.3 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "14fb8c6a-684d-44ad-bf21-5eca31b5763a")
+	)
 	(polyline
 		(pts
 			(xy 69.85 187.325) (xy 22.86 187.325)
@@ -5674,6 +5804,16 @@
 			(type default)
 		)
 		(uuid "17cf1e71-8352-49cc-97e8-1f60b620eeb8")
+	)
+	(wire
+		(pts
+			(xy 251.46 105.41) (xy 251.46 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18f95534-53e7-42a5-9e63-85b70f95e2e5")
 	)
 	(wire
 		(pts
@@ -5758,6 +5898,16 @@
 	)
 	(wire
 		(pts
+			(xy 288.29 101.6) (xy 252.73 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28258ede-2ffb-407c-9008-24a3fcbedc9e")
+	)
+	(wire
+		(pts
 			(xy 34.29 171.45) (xy 40.64 171.45)
 		)
 		(stroke
@@ -5795,16 +5945,6 @@
 			(type default)
 		)
 		(uuid "2e89a029-b20b-43ba-8176-1eaec832fb1e")
-	)
-	(wire
-		(pts
-			(xy 264.16 31.75) (xy 267.97 31.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2e8fb6cf-6842-4a98-bd80-58cb2a6d6bd4")
 	)
 	(wire
 		(pts
@@ -5855,6 +5995,16 @@
 			(type default)
 		)
 		(uuid "35e1711e-4aff-458a-8d55-c8d060db8da1")
+	)
+	(wire
+		(pts
+			(xy 252.73 95.25) (xy 241.3 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "367dc77f-265a-4d1a-af10-8743fcb0516a")
 	)
 	(wire
 		(pts
@@ -6129,6 +6279,16 @@
 	)
 	(wire
 		(pts
+			(xy 251.46 184.15) (xy 243.84 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "51de6e73-36d1-4e4c-ba3b-3a8fcf1a7893")
+	)
+	(wire
+		(pts
 			(xy 251.46 58.42) (xy 251.46 76.2)
 		)
 		(stroke
@@ -6390,6 +6550,16 @@
 	)
 	(wire
 		(pts
+			(xy 264.16 31.75) (xy 264.16 39.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6da6b00f-ac10-4d63-ad15-ff9776f41225")
+	)
+	(wire
+		(pts
 			(xy 67.31 106.68) (xy 73.66 106.68)
 		)
 		(stroke
@@ -6552,6 +6722,16 @@
 	)
 	(wire
 		(pts
+			(xy 251.46 189.23) (xy 241.3 189.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8409292a-7be1-4551-b913-7c80ed232673")
+	)
+	(wire
+		(pts
 			(xy 105.41 133.35) (xy 105.41 93.98)
 		)
 		(stroke
@@ -6559,6 +6739,16 @@
 			(type default)
 		)
 		(uuid "84b9bf83-1bd2-43f1-b92f-984199a2c210")
+	)
+	(wire
+		(pts
+			(xy 259.08 179.07) (xy 259.08 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84ed3932-b25b-4833-9b12-e7c454126c9a")
 	)
 	(wire
 		(pts
@@ -6602,6 +6792,16 @@
 	)
 	(wire
 		(pts
+			(xy 303.53 39.37) (xy 303.53 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "87fc2444-02c3-45c3-a355-3fff6821ec9b")
+	)
+	(wire
+		(pts
 			(xy 262.89 52.07) (xy 262.89 63.5)
 		)
 		(stroke
@@ -6632,6 +6832,16 @@
 	)
 	(wire
 		(pts
+			(xy 259.08 186.69) (xy 259.08 189.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8a4c1b21-815e-40b4-a077-e48c785bf9e9")
+	)
+	(wire
+		(pts
 			(xy 184.15 83.82) (xy 176.53 83.82)
 		)
 		(stroke
@@ -6659,6 +6869,26 @@
 			(type default)
 		)
 		(uuid "8b52205c-eba8-4fbf-b612-f86f938ba132")
+	)
+	(wire
+		(pts
+			(xy 241.3 156.21) (xy 241.3 189.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8cb170ba-6b4a-4bb2-8cc8-88385bd3e64b")
+	)
+	(wire
+		(pts
+			(xy 288.29 90.17) (xy 288.29 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d52e8e7-5ec3-4a40-b229-c8a497752f56")
 	)
 	(wire
 		(pts
@@ -6702,6 +6932,16 @@
 	)
 	(wire
 		(pts
+			(xy 259.08 176.53) (xy 259.08 179.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ece94a6-56a4-4029-abf0-946f59d8bcaa")
+	)
+	(wire
+		(pts
 			(xy 200.66 76.2) (xy 200.66 120.65)
 		)
 		(stroke
@@ -6732,6 +6972,16 @@
 	)
 	(wire
 		(pts
+			(xy 250.19 171.45) (xy 251.46 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "909806c8-0bd0-4af1-a319-dc1531179292")
+	)
+	(wire
+		(pts
 			(xy 252.73 146.05) (xy 252.73 152.4)
 		)
 		(stroke
@@ -6759,6 +7009,16 @@
 			(type default)
 		)
 		(uuid "93729362-25f7-4354-9505-252fb80e909e")
+	)
+	(wire
+		(pts
+			(xy 246.38 130.81) (xy 246.38 179.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "93e2c85c-8747-45c4-866d-c404b7db8943")
 	)
 	(wire
 		(pts
@@ -6919,6 +7179,16 @@
 			(type default)
 		)
 		(uuid "a3a0034a-f3a7-4662-a853-cf05cfa2cd96")
+	)
+	(wire
+		(pts
+			(xy 259.08 184.15) (xy 259.08 186.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a4edccaf-54b0-439f-989d-c537346021d8")
 	)
 	(wire
 		(pts
@@ -7275,6 +7545,26 @@
 	)
 	(wire
 		(pts
+			(xy 251.46 181.61) (xy 245.11 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c255ee7a-a7d7-41a8-bc9a-5a31df7c3ba8")
+	)
+	(wire
+		(pts
+			(xy 247.65 124.46) (xy 247.65 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c28ea810-5147-4b87-a043-7ab3db5355f3")
+	)
+	(wire
+		(pts
 			(xy 96.52 73.66) (xy 99.06 73.66)
 		)
 		(stroke
@@ -7285,6 +7575,16 @@
 	)
 	(wire
 		(pts
+			(xy 264.16 39.37) (xy 303.53 39.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c622dd53-bfb4-4445-804d-93542d77e708")
+	)
+	(wire
+		(pts
 			(xy 102.87 86.36) (xy 102.87 101.6)
 		)
 		(stroke
@@ -7292,6 +7592,16 @@
 			(type default)
 		)
 		(uuid "c6475f81-ef38-4b7b-9781-81380b0210eb")
+	)
+	(wire
+		(pts
+			(xy 243.84 184.15) (xy 243.84 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c686686a-a553-4569-9763-525775b77cbf")
 	)
 	(wire
 		(pts
@@ -7425,6 +7735,16 @@
 	)
 	(wire
 		(pts
+			(xy 246.38 179.07) (xy 251.46 179.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd5e428c-2cf6-47b7-88f3-9501643e76d9")
+	)
+	(wire
+		(pts
 			(xy 142.24 93.98) (xy 105.41 93.98)
 		)
 		(stroke
@@ -7442,6 +7762,16 @@
 			(type default)
 		)
 		(uuid "cf2d56d5-6a29-439f-980b-472446ff5437")
+	)
+	(wire
+		(pts
+			(xy 251.46 186.69) (xy 242.57 186.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf5ec410-d6af-48ff-8726-0f6723491e16")
 	)
 	(wire
 		(pts
@@ -7555,6 +7885,16 @@
 	)
 	(wire
 		(pts
+			(xy 242.57 186.69) (xy 242.57 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d6d93258-74f9-4db0-b64f-e1c713a17a18")
+	)
+	(wire
+		(pts
 			(xy 135.89 83.82) (xy 142.24 83.82)
 		)
 		(stroke
@@ -7565,6 +7905,16 @@
 	)
 	(wire
 		(pts
+			(xy 247.65 176.53) (xy 251.46 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d7bca4af-d2b2-471c-8b77-293920d3c298")
+	)
+	(wire
+		(pts
 			(xy 184.15 82.55) (xy 184.15 83.82)
 		)
 		(stroke
@@ -7572,6 +7922,16 @@
 			(type default)
 		)
 		(uuid "d89c06fb-0941-4a8f-911e-231af3d8f837")
+	)
+	(wire
+		(pts
+			(xy 259.08 171.45) (xy 259.08 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d989b63f-2014-4957-8935-7295e21d8321")
 	)
 	(wire
 		(pts
@@ -7625,6 +7985,16 @@
 	)
 	(wire
 		(pts
+			(xy 259.08 168.91) (xy 259.08 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dfd9013e-cb2b-4040-b210-0f5a8bcf90a7")
+	)
+	(wire
+		(pts
 			(xy 245.11 137.16) (xy 255.27 137.16)
 		)
 		(stroke
@@ -7632,6 +8002,16 @@
 			(type default)
 		)
 		(uuid "e08a8dce-66fe-49b8-b4ce-d1b862e421c0")
+	)
+	(wire
+		(pts
+			(xy 250.19 111.76) (xy 250.19 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1094f9c-b3e0-4a54-a677-128c5a6e3fb3")
 	)
 	(wire
 		(pts
@@ -7652,6 +8032,16 @@
 			(type default)
 		)
 		(uuid "e2c6f6b9-f3ae-4332-bfbd-c7359a1c9fc2")
+	)
+	(wire
+		(pts
+			(xy 252.73 101.6) (xy 252.73 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e2d49a0c-c24e-4fa2-a575-6b832948d6c6")
 	)
 	(wire
 		(pts
@@ -7692,6 +8082,16 @@
 			(type default)
 		)
 		(uuid "eb0b1318-b60b-4082-8128-691016ed892f")
+	)
+	(wire
+		(pts
+			(xy 248.92 118.11) (xy 248.92 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebd91e84-4b39-4733-b8d0-6bdf6e92f276")
 	)
 	(wire
 		(pts
@@ -7755,6 +8155,16 @@
 	)
 	(wire
 		(pts
+			(xy 259.08 181.61) (xy 259.08 184.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f1917944-cb81-408d-a39d-7e35948c78a2")
+	)
+	(wire
+		(pts
 			(xy 255.27 114.3) (xy 252.73 114.3)
 		)
 		(stroke
@@ -7772,6 +8182,16 @@
 			(type default)
 		)
 		(uuid "f2d7ead8-f903-47c3-95c7-5edead1c220a")
+	)
+	(wire
+		(pts
+			(xy 248.92 173.99) (xy 251.46 173.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f36251dc-84bf-4056-9666-0111db11746c")
 	)
 	(wire
 		(pts
@@ -8846,7 +9266,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "2k2"
+		(property "Value" "470"
 			(at 244.856 81.28 90)
 			(effects
 				(font
@@ -8957,6 +9377,75 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "#PWR47")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 255.27 189.23 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "04afed6f-decc-4480-822f-e2da9745b01e")
+		(property "Reference" "R38"
+			(at 255.27 183.9722 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 189.23 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 187.452 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "06b938ab-89b2-4b3d-85da-1c9731c0d8e4")
+		)
+		(pin "2"
+			(uuid "48df8fca-dc36-4682-be75-9b77addc9bd5")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R38")
 					(unit 1)
 				)
 			)
@@ -9334,6 +9823,75 @@
 	)
 	(symbol
 		(lib_id "Device:R")
+		(at 292.1 90.17 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0a84eba0-8099-47af-80af-acd9383accc4")
+		(property "Reference" "R22"
+			(at 292.1 84.9122 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "470"
+			(at 291.846 90.17 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 292.1 88.392 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 292.1 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 292.1 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b4cbdbb5-9b03-46e0-b4ac-c11673b64a86")
+		)
+		(pin "2"
+			(uuid "2b7fcb80-6240-4f25-bca6-7a1b1b7bcba0")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R22")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
 		(at 245.11 78.74 90)
 		(mirror x)
 		(unit 1)
@@ -9351,7 +9909,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "2k2"
+		(property "Value" "470"
 			(at 244.856 78.74 90)
 			(effects
 				(font
@@ -9461,6 +10019,75 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "#PWR10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 255.27 176.53 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "129da29a-0b9f-4530-868d-2af4f2d1ec01")
+		(property "Reference" "R33"
+			(at 255.27 171.2722 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 176.53 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 174.752 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "12358d36-4449-4567-8d6c-6b86129bf87f")
+		)
+		(pin "2"
+			(uuid "ca6cd6ba-b690-4658-b1af-43ffd3fea2d9")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R33")
 					(unit 1)
 				)
 			)
@@ -10503,6 +11130,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 255.27 173.99 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "305ebbce-fd18-46ac-8eeb-25638ddc0444")
+		(property "Reference" "R32"
+			(at 255.27 168.7322 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 173.99 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 172.212 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "44a3213f-06e7-441d-ba36-a97a6a33ce2a")
+		)
+		(pin "2"
+			(uuid "75ac57ac-1301-4aa0-8f59-fb00d53ce046")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R32")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector:Conn_01x02_Socket")
 		(at 260.35 105.41 0)
 		(unit 1)
@@ -10568,6 +11264,75 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "J16")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 255.27 184.15 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "31c85bbb-01ef-4427-b76d-d6e83ba2fc53")
+		(property "Reference" "R36"
+			(at 255.27 178.8922 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 184.15 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 182.372 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "feaa576f-41d6-49f8-9369-d919d050c64a")
+		)
+		(pin "2"
+			(uuid "0687b827-069b-4bac-93f7-79072069a85b")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R36")
 					(unit 1)
 				)
 			)
@@ -10706,6 +11471,82 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "R13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Transistor_BJT:MMBT3904")
+		(at 300.99 90.17 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "33c2a7e5-9def-4e4b-9884-8ac3ab0c8ded")
+		(property "Reference" "Q6"
+			(at 306.07 91.4401 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Value" "MMBT3904"
+			(at 305.816 90.678 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 306.07 92.075 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/pzt3904-d.pdf"
+			(at 300.99 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Description" "0.2A Ic, 40V Vce, Small Signal NPN Transistor, SOT-23"
+			(at 300.99 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "40e380e9-a593-41d6-9550-b37cd1452d95")
+		)
+		(pin "3"
+			(uuid "46d122b3-e7c2-44ab-935f-1c47fc0c060e")
+		)
+		(pin "1"
+			(uuid "41d06133-218b-45b7-be2a-8568d8e0486b")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "Q6")
 					(unit 1)
 				)
 			)
@@ -11272,6 +12113,75 @@
 	)
 	(symbol
 		(lib_id "Device:R")
+		(at 255.27 181.61 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4393601d-1e7d-47f2-921e-f4880b957f30")
+		(property "Reference" "R35"
+			(at 255.27 176.3522 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 181.61 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 179.832 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b809048b-49ad-4027-a24c-d21bd30aaf1a")
+		)
+		(pin "2"
+			(uuid "2dd9b692-4022-4d68-b14c-8aa0cfeda3e4")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R35")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
 		(at 101.6 72.39 180)
 		(unit 1)
 		(exclude_from_sim no)
@@ -11333,6 +12243,75 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "R11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 255.27 186.69 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "457f4f11-37dc-446a-9bbe-fcb4ebd37509")
+		(property "Reference" "R37"
+			(at 255.27 181.4322 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 186.69 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 184.912 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a37bfddc-f77a-465f-b8ca-e5cd13fa942d")
+		)
+		(pin "2"
+			(uuid "d7dac010-d978-4d57-8466-e3f3ccbdcf79")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R37")
 					(unit 1)
 				)
 			)
@@ -11968,7 +12947,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "2k2"
+		(property "Value" "470"
 			(at 244.856 83.82 90)
 			(effects
 				(font
@@ -12406,6 +13385,75 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 255.27 171.45 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "66f65a41-76f4-450d-9b95-7093dcc606ba")
+		(property "Reference" "R31"
+			(at 255.27 166.1922 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 171.45 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 169.672 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "09264f34-3582-4c9a-aa62-b3f2e5498967")
+		)
+		(pin "2"
+			(uuid "0773af4c-2c01-4c16-99a2-8de3149755c7")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R31")
 					(unit 1)
 				)
 			)
@@ -12972,6 +14020,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND1")
+		(at 303.53 95.25 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "738f7e91-9c0a-405d-a768-bd14f4b9f7e0")
+		(property "Reference" "#PWR51"
+			(at 303.53 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND1"
+			(at 303.53 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 303.53 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 303.53 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND1\" , ground"
+			(at 303.53 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "12769206-a062-4734-a99b-688e9e92dff5")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "#PWR51")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3VA")
 		(at 223.52 66.04 0)
 		(unit 1)
@@ -13466,7 +14580,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "2k2"
+		(property "Value" "470"
 			(at 244.856 76.2 90)
 			(effects
 				(font
@@ -14084,7 +15198,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "2k2"
+		(property "Value" "470"
 			(at 244.856 73.66 90)
 			(effects
 				(font
@@ -14883,6 +15997,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 255.27 179.07 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ab61b409-a4f8-4a1f-b16b-8ba03c805484")
+		(property "Reference" "R34"
+			(at 255.27 173.8122 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 179.07 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 177.292 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7215f4eb-4319-4f5b-a4b9-9b13a5e523e7")
+		)
+		(pin "2"
+			(uuid "b7f31c2f-7db1-4fd6-b9ed-2880fc173fd0")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R34")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 34.29 116.84 0)
 		(unit 1)
@@ -15351,6 +16534,75 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "J5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 255.27 168.91 90)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bd931de1-318b-4918-9272-cc3a8ab8e4fb")
+		(property "Reference" "R30"
+			(at 255.27 163.6522 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "2k2"
+			(at 255.016 168.91 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 255.27 167.132 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 255.27 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1cb60cc7-0551-4fb2-b25f-2fd6a9d7ac1c")
+		)
+		(pin "2"
+			(uuid "89e30cdf-e539-4f44-8c81-5dd1e451f9ca")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "R30")
 					(unit 1)
 				)
 			)
@@ -17494,6 +18746,71 @@
 			(project "Garagensteuerung2"
 				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
 					(reference "#PWR16")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3VA")
+		(at 259.08 168.91 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "fe29dacb-2cb8-41ed-b091-15bacfc65933")
+		(property "Reference" "#PWR52"
+			(at 259.08 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3VA"
+			(at 263.398 167.132 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 259.08 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 259.08 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3VA\""
+			(at 259.08 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5a3b080c-f428-4462-9110-66958ece5565")
+		)
+		(instances
+			(project "Garagensteuerung2"
+				(path "/1067c699-e216-40cf-8487-1b5804cd0047"
+					(reference "#PWR52")
 					(unit 1)
 				)
 			)
